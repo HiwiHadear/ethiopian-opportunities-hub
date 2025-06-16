@@ -1,16 +1,17 @@
 
-import React from 'react';
-import { Search, MapPin, Calendar, Building, Briefcase, FileText, Bell, Users, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, MapPin, Calendar, Building, Briefcase, FileText, Bell, Users, TrendingUp, Edit, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 const Index = () => {
-  console.log('Index component is rendering');
+  console.log('Index component is rendering with editable samples');
   
-  const featuredTenders = [
+  const [featuredTenders, setFeaturedTenders] = useState([
     {
       id: 1,
       title: "Construction of New Government Office Building",
@@ -38,9 +39,9 @@ const Index = () => {
       sector: "Agriculture",
       region: "Hawassa"
     }
-  ];
+  ]);
 
-  const latestJobs = [
+  const [latestJobs, setLatestJobs] = useState([
     {
       id: 1,
       title: "Senior Software Engineer",
@@ -68,7 +69,386 @@ const Index = () => {
       type: "Full-time",
       posted: "3 days ago"
     }
-  ];
+  ]);
+
+  const [featuredCompanies, setFeaturedCompanies] = useState([
+    { id: 1, name: "Ethiopian Airlines", sector: "Aviation", emoji: "🛫" },
+    { id: 2, name: "Commercial Bank of Ethiopia", sector: "Banking", emoji: "🏦" },
+    { id: 3, name: "Ethio Telecom", sector: "Telecommunications", emoji: "📱" },
+    { id: 4, name: "Ethiopian Electric Utility", sector: "Energy", emoji: "⚡" }
+  ]);
+
+  const [newsItems, setNewsItems] = useState([
+    {
+      id: 1,
+      title: "New Government Procurement Guidelines Released",
+      date: "June 14, 2024",
+      category: "Policy"
+    },
+    {
+      id: 2,
+      title: "Major Infrastructure Tenders Opening This Month",
+      date: "June 12, 2024",
+      category: "Tenders"
+    },
+    {
+      id: 3,
+      title: "Job Market Growth in Tech Sector",
+      date: "June 10, 2024",
+      category: "Jobs"
+    }
+  ]);
+
+  const [editingTender, setEditingTender] = useState(null);
+  const [editingJob, setEditingJob] = useState(null);
+  const [editingCompany, setEditingCompany] = useState(null);
+  const [editingNews, setEditingNews] = useState(null);
+
+  const handleEditTender = (tenderId) => {
+    setEditingTender(tenderId);
+  };
+
+  const handleSaveTender = (tenderId, updatedTender) => {
+    setFeaturedTenders(prev => 
+      prev.map(tender => 
+        tender.id === tenderId ? { ...tender, ...updatedTender } : tender
+      )
+    );
+    setEditingTender(null);
+  };
+
+  const handleEditJob = (jobId) => {
+    setEditingJob(jobId);
+  };
+
+  const handleSaveJob = (jobId, updatedJob) => {
+    setLatestJobs(prev => 
+      prev.map(job => 
+        job.id === jobId ? { ...job, ...updatedJob } : job
+      )
+    );
+    setEditingJob(null);
+  };
+
+  const handleEditCompany = (companyId) => {
+    setEditingCompany(companyId);
+  };
+
+  const handleSaveCompany = (companyId, updatedCompany) => {
+    setFeaturedCompanies(prev => 
+      prev.map(company => 
+        company.id === companyId ? { ...company, ...updatedCompany } : company
+      )
+    );
+    setEditingCompany(null);
+  };
+
+  const handleEditNews = (newsId) => {
+    setEditingNews(newsId);
+  };
+
+  const handleSaveNews = (newsId, updatedNews) => {
+    setNewsItems(prev => 
+      prev.map(news => 
+        news.id === newsId ? { ...news, ...updatedNews } : news
+      )
+    );
+    setEditingNews(null);
+  };
+
+  const EditableTenderCard = ({ tender }) => {
+    const [editData, setEditData] = useState(tender);
+    const isEditing = editingTender === tender.id;
+
+    if (isEditing) {
+      return (
+        <div className="border rounded-lg p-4 bg-blue-50">
+          <div className="space-y-3">
+            <Input
+              value={editData.title}
+              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+              placeholder="Tender Title"
+            />
+            <Input
+              value={editData.organization}
+              onChange={(e) => setEditData({ ...editData, organization: e.target.value })}
+              placeholder="Organization"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={editData.budget}
+                onChange={(e) => setEditData({ ...editData, budget: e.target.value })}
+                placeholder="Budget"
+              />
+              <Input
+                value={editData.sector}
+                onChange={(e) => setEditData({ ...editData, sector: e.target.value })}
+                placeholder="Sector"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={editData.region}
+                onChange={(e) => setEditData({ ...editData, region: e.target.value })}
+                placeholder="Region"
+              />
+              <Input
+                type="date"
+                value={editData.deadline}
+                onChange={(e) => setEditData({ ...editData, deadline: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => handleSaveTender(tender.id, editData)}>
+                <Save className="w-4 h-4 mr-1" />
+                Save
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingTender(null)}>
+                <X className="w-4 h-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-semibold text-lg text-gray-900">{tender.title}</h3>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{tender.sector}</Badge>
+            <Button size="sm" variant="ghost" onClick={() => handleEditTender(tender.id)}>
+              <Edit className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        <p className="text-gray-600 mb-3">{tender.organization}</p>
+        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
+          <span className="flex items-center">
+            <MapPin className="w-4 h-4 mr-1" />
+            {tender.region}
+          </span>
+          <span className="flex items-center">
+            <Calendar className="w-4 h-4 mr-1" />
+            Deadline: {tender.deadline}
+          </span>
+          <span className="font-semibold text-green-600">
+            Budget: {tender.budget}
+          </span>
+        </div>
+        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+          View Details
+        </Button>
+      </div>
+    );
+  };
+
+  const EditableJobCard = ({ job }) => {
+    const [editData, setEditData] = useState(job);
+    const isEditing = editingJob === job.id;
+
+    if (isEditing) {
+      return (
+        <div className="border rounded-lg p-4 bg-indigo-50">
+          <div className="space-y-3">
+            <Input
+              value={editData.title}
+              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+              placeholder="Job Title"
+            />
+            <Input
+              value={editData.company}
+              onChange={(e) => setEditData({ ...editData, company: e.target.value })}
+              placeholder="Company"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={editData.location}
+                onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                placeholder="Location"
+              />
+              <Input
+                value={editData.type}
+                onChange={(e) => setEditData({ ...editData, type: e.target.value })}
+                placeholder="Job Type"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={editData.salary}
+                onChange={(e) => setEditData({ ...editData, salary: e.target.value })}
+                placeholder="Salary Range"
+              />
+              <Input
+                value={editData.posted}
+                onChange={(e) => setEditData({ ...editData, posted: e.target.value })}
+                placeholder="Posted"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => handleSaveJob(job.id, editData)}>
+                <Save className="w-4 h-4 mr-1" />
+                Save
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingJob(null)}>
+                <X className="w-4 h-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">{job.type}</Badge>
+            <Button size="sm" variant="ghost" onClick={() => handleEditJob(job.id)}>
+              <Edit className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        <p className="text-gray-600 mb-3">{job.company}</p>
+        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
+          <span className="flex items-center">
+            <MapPin className="w-4 h-4 mr-1" />
+            {job.location}
+          </span>
+          <span className="font-semibold text-green-600">
+            {job.salary}
+          </span>
+          <span>{job.posted}</span>
+        </div>
+        <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+          Apply Now
+        </Button>
+      </div>
+    );
+  };
+
+  const EditableCompanyItem = ({ company }) => {
+    const [editData, setEditData] = useState(company);
+    const isEditing = editingCompany === company.id;
+
+    if (isEditing) {
+      return (
+        <div className="p-3 rounded-lg bg-purple-50 border">
+          <div className="space-y-2">
+            <Input
+              value={editData.emoji}
+              onChange={(e) => setEditData({ ...editData, emoji: e.target.value })}
+              placeholder="Emoji"
+              className="w-20"
+            />
+            <Input
+              value={editData.name}
+              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              placeholder="Company Name"
+            />
+            <Input
+              value={editData.sector}
+              onChange={(e) => setEditData({ ...editData, sector: e.target.value })}
+              placeholder="Sector"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => handleSaveCompany(company.id, editData)}>
+                <Save className="w-3 h-3 mr-1" />
+                Save
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingCompany(null)}>
+                <X className="w-3 h-3 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
+        <div className="flex items-center space-x-3">
+          <div className="text-2xl">{company.emoji}</div>
+          <div>
+            <div className="font-medium text-gray-900">{company.name}</div>
+            <div className="text-sm text-gray-500">{company.sector}</div>
+          </div>
+        </div>
+        <Button size="sm" variant="ghost" onClick={() => handleEditCompany(company.id)}>
+          <Edit className="w-4 h-4" />
+        </Button>
+      </div>
+    );
+  };
+
+  const EditableNewsItem = ({ news }) => {
+    const [editData, setEditData] = useState(news);
+    const isEditing = editingNews === news.id;
+
+    if (isEditing) {
+      return (
+        <div className="border-l-4 border-blue-500 pl-3 bg-blue-50 p-3 rounded">
+          <div className="space-y-2">
+            <Textarea
+              value={editData.title}
+              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+              placeholder="News Title"
+              className="min-h-[60px]"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="date"
+                value={editData.date}
+                onChange={(e) => setEditData({ ...editData, date: e.target.value })}
+              />
+              <Input
+                value={editData.category}
+                onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                placeholder="Category"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => handleSaveNews(news.id, editData)}>
+                <Save className="w-3 h-3 mr-1" />
+                Save
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingNews(null)}>
+                <X className="w-3 h-3 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="border-l-4 border-blue-500 pl-3 group">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h4 className="font-medium text-gray-900 text-sm">{news.title}</h4>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xs text-gray-500">{news.date}</span>
+              <Badge variant="outline" className="text-xs">{news.category}</Badge>
+            </div>
+          </div>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+            onClick={() => handleEditNews(news.id)}
+          >
+            <Edit className="w-3 h-3" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -173,35 +553,13 @@ const Index = () => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center">
                   <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                  Latest Tenders
+                  Latest Tenders (Editable)
                 </CardTitle>
                 <Button variant="outline" size="sm">View All</Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 {featuredTenders.map((tender) => (
-                  <div key={tender.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg text-gray-900">{tender.title}</h3>
-                      <Badge variant="secondary">{tender.sector}</Badge>
-                    </div>
-                    <p className="text-gray-600 mb-3">{tender.organization}</p>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                      <span className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {tender.region}
-                      </span>
-                      <span className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        Deadline: {tender.deadline}
-                      </span>
-                      <span className="font-semibold text-green-600">
-                        Budget: {tender.budget}
-                      </span>
-                    </div>
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                      View Details
-                    </Button>
-                  </div>
+                  <EditableTenderCard key={tender.id} tender={tender} />
                 ))}
               </CardContent>
             </Card>
@@ -211,32 +569,13 @@ const Index = () => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center">
                   <Briefcase className="w-5 h-5 mr-2 text-indigo-600" />
-                  Latest Jobs
+                  Latest Jobs (Editable)
                 </CardTitle>
                 <Button variant="outline" size="sm">View All</Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 {latestJobs.map((job) => (
-                  <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
-                      <Badge variant="outline">{job.type}</Badge>
-                    </div>
-                    <p className="text-gray-600 mb-3">{job.company}</p>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                      <span className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {job.location}
-                      </span>
-                      <span className="font-semibold text-green-600">
-                        {job.salary}
-                      </span>
-                      <span>{job.posted}</span>
-                    </div>
-                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                      Apply Now
-                    </Button>
-                  </div>
+                  <EditableJobCard key={job.id} job={job} />
                 ))}
               </CardContent>
             </Card>
@@ -249,38 +588,13 @@ const Index = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Building className="w-5 h-5 mr-2 text-purple-600" />
-                  Featured Companies
+                  Featured Companies (Editable)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="text-2xl">🛫</div>
-                  <div>
-                    <div className="font-medium text-gray-900">Ethiopian Airlines</div>
-                    <div className="text-sm text-gray-500">Aviation</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="text-2xl">🏦</div>
-                  <div>
-                    <div className="font-medium text-gray-900">Commercial Bank of Ethiopia</div>
-                    <div className="text-sm text-gray-500">Banking</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="text-2xl">📱</div>
-                  <div>
-                    <div className="font-medium text-gray-900">Ethio Telecom</div>
-                    <div className="text-sm text-gray-500">Telecommunications</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="text-2xl">⚡</div>
-                  <div>
-                    <div className="font-medium text-gray-900">Ethiopian Electric Utility</div>
-                    <div className="text-sm text-gray-500">Energy</div>
-                  </div>
-                </div>
+                {featuredCompanies.map((company) => (
+                  <EditableCompanyItem key={company.id} company={company} />
+                ))}
               </CardContent>
             </Card>
 
@@ -289,31 +603,13 @@ const Index = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                  News & Announcements
+                  News & Announcements (Editable)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="border-l-4 border-blue-500 pl-3">
-                  <h4 className="font-medium text-gray-900 text-sm">New Government Procurement Guidelines Released</h4>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-gray-500">June 14, 2024</span>
-                    <Badge variant="outline" className="text-xs">Policy</Badge>
-                  </div>
-                </div>
-                <div className="border-l-4 border-blue-500 pl-3">
-                  <h4 className="font-medium text-gray-900 text-sm">Major Infrastructure Tenders Opening This Month</h4>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-gray-500">June 12, 2024</span>
-                    <Badge variant="outline" className="text-xs">Tenders</Badge>
-                  </div>
-                </div>
-                <div className="border-l-4 border-blue-500 pl-3">
-                  <h4 className="font-medium text-gray-900 text-sm">Job Market Growth in Tech Sector</h4>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-gray-500">June 10, 2024</span>
-                    <Badge variant="outline" className="text-xs">Jobs</Badge>
-                  </div>
-                </div>
+                {newsItems.map((news) => (
+                  <EditableNewsItem key={news.id} news={news} />
+                ))}
               </CardContent>
             </Card>
 
