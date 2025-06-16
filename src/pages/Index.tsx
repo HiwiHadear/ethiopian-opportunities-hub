@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, MapPin, Calendar, Building, Briefcase, FileText, Bell, Users, TrendingUp, Edit, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,9 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import PostTenderDialog from '@/components/PostTenderDialog';
+import PostJobDialog from '@/components/PostJobDialog';
+import PostCompanyDialog from '@/components/PostCompanyDialog';
+import PostNewsDialog from '@/components/PostNewsDialog';
 
 const Index = () => {
-  console.log('Index component is rendering with editable samples');
+  console.log('Index component is rendering with editable samples and post options');
   
   const [featuredTenders, setFeaturedTenders] = useState([
     {
@@ -154,6 +157,22 @@ const Index = () => {
       )
     );
     setEditingNews(null);
+  };
+
+  const handleAddTender = (newTender) => {
+    setFeaturedTenders(prev => [newTender, ...prev]);
+  };
+
+  const handleAddJob = (newJob) => {
+    setLatestJobs(prev => [newJob, ...prev]);
+  };
+
+  const handleAddCompany = (newCompany) => {
+    setFeaturedCompanies(prev => [...prev, newCompany]);
+  };
+
+  const handleAddNews = (newNews) => {
+    setNewsItems(prev => [newNews, ...prev]);
   };
 
   const EditableTenderCard = ({ tender }) => {
@@ -472,6 +491,8 @@ const Index = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
+              <PostTenderDialog onSubmit={handleAddTender} />
+              <PostJobDialog onSubmit={handleAddJob} />
               <Button variant="outline" className="hidden sm:flex">
                 <Bell className="w-4 h-4 mr-2" />
                 Alerts
@@ -555,7 +576,10 @@ const Index = () => {
                   <FileText className="w-5 h-5 mr-2 text-blue-600" />
                   Latest Tenders (Editable)
                 </CardTitle>
-                <Button variant="outline" size="sm">View All</Button>
+                <div className="flex gap-2">
+                  <PostTenderDialog onSubmit={handleAddTender} />
+                  <Button variant="outline" size="sm">View All</Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {featuredTenders.map((tender) => (
@@ -571,7 +595,10 @@ const Index = () => {
                   <Briefcase className="w-5 h-5 mr-2 text-indigo-600" />
                   Latest Jobs (Editable)
                 </CardTitle>
-                <Button variant="outline" size="sm">View All</Button>
+                <div className="flex gap-2">
+                  <PostJobDialog onSubmit={handleAddJob} />
+                  <Button variant="outline" size="sm">View All</Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {latestJobs.map((job) => (
@@ -585,11 +612,12 @@ const Index = () => {
           <div className="space-y-6">
             {/* Featured Companies */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center">
                   <Building className="w-5 h-5 mr-2 text-purple-600" />
                   Featured Companies (Editable)
                 </CardTitle>
+                <PostCompanyDialog onSubmit={handleAddCompany} />
               </CardHeader>
               <CardContent className="space-y-3">
                 {featuredCompanies.map((company) => (
@@ -600,11 +628,12 @@ const Index = () => {
 
             {/* News & Announcements */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center">
                   <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
                   News & Announcements (Editable)
                 </CardTitle>
+                <PostNewsDialog onSubmit={handleAddNews} />
               </CardHeader>
               <CardContent className="space-y-3">
                 {newsItems.map((news) => (
@@ -623,14 +652,18 @@ const Index = () => {
                   <Users className="w-4 h-4 mr-2" />
                   Register as Company
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Post a Tender
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Post a Job
-                </Button>
+                <PostTenderDialog onSubmit={handleAddTender}>
+                  <Button className="w-full justify-start" variant="outline">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Post a Tender
+                  </Button>
+                </PostTenderDialog>
+                <PostJobDialog onSubmit={handleAddJob}>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Post a Job
+                  </Button>
+                </PostJobDialog>
                 <Button className="w-full justify-start" variant="outline">
                   <Bell className="w-4 h-4 mr-2" />
                   Set Up Alerts
