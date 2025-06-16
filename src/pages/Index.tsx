@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Index = () => {
+  console.log('Index component is rendering');
+  
   const featuredTenders = [
     {
       id: 1,
@@ -68,31 +70,6 @@ const Index = () => {
     }
   ];
 
-  const featuredCompanies = [
-    { name: "Ethiopian Airlines", logo: "🛫", sector: "Aviation" },
-    { name: "Commercial Bank of Ethiopia", logo: "🏦", sector: "Banking" },
-    { name: "Ethio Telecom", logo: "📱", sector: "Telecommunications" },
-    { name: "Ethiopian Electric Utility", logo: "⚡", sector: "Energy" }
-  ];
-
-  const newsItems = [
-    {
-      title: "New Government Procurement Guidelines Released",
-      date: "June 14, 2024",
-      category: "Policy"
-    },
-    {
-      title: "Major Infrastructure Tenders Opening This Month",
-      date: "June 12, 2024",
-      category: "Tenders"
-    },
-    {
-      title: "Job Market Growth in Tech Sector",
-      date: "June 10, 2024",
-      category: "Jobs"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -119,9 +96,7 @@ const Index = () => {
                 <Bell className="w-4 h-4 mr-2" />
                 Alerts
               </Button>
-              <Button>
-                Sign In
-              </Button>
+              <Button>Sign In</Button>
             </div>
           </div>
         </div>
@@ -278,15 +253,34 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {featuredCompanies.map((company, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="text-2xl">{company.logo}</div>
-                    <div>
-                      <div className="font-medium text-gray-900">{company.name}</div>
-                      <div className="text-sm text-gray-500">{company.sector}</div>
-                    </div>
+                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="text-2xl">🛫</div>
+                  <div>
+                    <div className="font-medium text-gray-900">Ethiopian Airlines</div>
+                    <div className="text-sm text-gray-500">Aviation</div>
                   </div>
-                ))}
+                </div>
+                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="text-2xl">🏦</div>
+                  <div>
+                    <div className="font-medium text-gray-900">Commercial Bank of Ethiopia</div>
+                    <div className="text-sm text-gray-500">Banking</div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="text-2xl">📱</div>
+                  <div>
+                    <div className="font-medium text-gray-900">Ethio Telecom</div>
+                    <div className="text-sm text-gray-500">Telecommunications</div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="text-2xl">⚡</div>
+                  <div>
+                    <div className="font-medium text-gray-900">Ethiopian Electric Utility</div>
+                    <div className="text-sm text-gray-500">Energy</div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -299,15 +293,27 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {newsItems.map((news, index) => (
-                  <div key={index} className="border-l-4 border-blue-500 pl-3">
-                    <h4 className="font-medium text-gray-900 text-sm">{news.title}</h4>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-xs text-gray-500">{news.date}</span>
-                      <Badge variant="outline" className="text-xs">{news.category}</Badge>
-                    </div>
+                <div className="border-l-4 border-blue-500 pl-3">
+                  <h4 className="font-medium text-gray-900 text-sm">New Government Procurement Guidelines Released</h4>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-xs text-gray-500">June 14, 2024</span>
+                    <Badge variant="outline" className="text-xs">Policy</Badge>
                   </div>
-                ))}
+                </div>
+                <div className="border-l-4 border-blue-500 pl-3">
+                  <h4 className="font-medium text-gray-900 text-sm">Major Infrastructure Tenders Opening This Month</h4>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-xs text-gray-500">June 12, 2024</span>
+                    <Badge variant="outline" className="text-xs">Tenders</Badge>
+                  </div>
+                </div>
+                <div className="border-l-4 border-blue-500 pl-3">
+                  <h4 className="font-medium text-gray-900 text-sm">Job Market Growth in Tech Sector</h4>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-xs text-gray-500">June 10, 2024</span>
+                    <Badge variant="outline" className="text-xs">Jobs</Badge>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
