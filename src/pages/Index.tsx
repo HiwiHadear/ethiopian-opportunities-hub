@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Calendar, Building, Briefcase, FileText, Bell, Users, TrendingUp, Edit, Save, X } from 'lucide-react';
+import { Search, MapPin, Calendar, Building, Briefcase, FileText, Bell, Users, TrendingUp, Edit, Save, X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import PostTenderDialog from '@/components/PostTenderDialog';
 import PostJobDialog from '@/components/PostJobDialog';
 import PostCompanyDialog from '@/components/PostCompanyDialog';
@@ -115,6 +116,15 @@ const Index = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [tenderDetailsOpen, setTenderDetailsOpen] = useState(false);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
+  const [autoCreateCV, setAutoCreateCV] = useState(false);
+  const [cvData, setCvData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    experience: '',
+    skills: '',
+    education: ''
+  });
 
   const handleEditTender = (tenderId) => {
     setEditingTender(tenderId);
@@ -194,13 +204,46 @@ const Index = () => {
     setJobDetailsOpen(true);
   };
 
+  const handleGenerateCV = () => {
+    if (!cvData.fullName || !cvData.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in at least your name and email to generate a CV.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Simulate CV generation
+    toast({
+      title: "CV Generated Successfully!",
+      description: "Your CV has been automatically created and is ready for download.",
+    });
+
+    // In a real application, this would generate and download a PDF
+    console.log('Generated CV with data:', cvData);
+  };
+
   const handleJobApplication = () => {
+    if (autoCreateCV) {
+      handleGenerateCV();
+    }
+    
     toast({
       title: "Application Submitted!",
       description: `Your application for ${selectedJob?.title} at ${selectedJob?.company} has been submitted successfully.`,
     });
     setJobDetailsOpen(false);
     setSelectedJob(null);
+    setAutoCreateCV(false);
+    setCvData({
+      fullName: '',
+      email: '',
+      phone: '',
+      experience: '',
+      skills: '',
+      education: ''
+    });
   };
 
   const EditableTenderCard = ({ tender }) => {
@@ -819,14 +862,14 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Job Application Modal */}
+      {/* Job Application Modal with CV Creation */}
       <Dialog open={jobDetailsOpen} onOpenChange={setJobDetailsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Apply for Job</DialogTitle>
           </DialogHeader>
           {selectedJob && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {selectedJob.title}
@@ -869,6 +912,103 @@ const Index = () => {
                   We are looking for a qualified candidate to join our team. 
                   This position offers excellent growth opportunities and competitive benefits.
                 </p>
+              </div>
+
+              {/* Auto CV Creation Option */}
+              <div className="border rounded-lg p-4 bg-blue-50">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Checkbox 
+                    id="auto-cv" 
+                    checked={autoCreateCV}
+                    onCheckedChange={setAutoCreateCV}
+                  />
+                  <label htmlFor="auto-cv" className="text-sm font-medium">
+                    Automatically create CV for this application
+                  </label>
+                </div>
+                
+                {autoCreateCV && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Full Name *
+                        </label>
+                        <Input
+                          value={cvData.fullName}
+                          onChange={(e) => setCvData({ ...cvData, fullName: e.target.value })}
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email *
+                        </label>
+                        <Input
+                          type="email"
+                          value={cvData.email}
+                          onChange={(e) => setCvData({ ...cvData, email: e.target.value })}
+                          placeholder="your.email@example.com"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </label>
+                      <Input
+                        value={cvData.phone}
+                        onChange={(e) => setCvData({ ...cvData, phone: e.target.value })}
+                        placeholder="+251 9XX XXX XXX"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Work Experience
+                      </label>
+                      <Textarea
+                        value={cvData.experience}
+                        onChange={(e) => setCvData({ ...cvData, experience: e.target.value })}
+                        placeholder="Describe your relevant work experience..."
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Skills
+                      </label>
+                      <Input
+                        value={cvData.skills}
+                        onChange={(e) => setCvData({ ...cvData, skills: e.target.value })}
+                        placeholder="List your key skills (comma separated)"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Education
+                      </label>
+                      <Textarea
+                        value={cvData.education}
+                        onChange={(e) => setCvData({ ...cvData, education: e.target.value })}
+                        placeholder="Your educational background..."
+                        className="min-h-[60px]"
+                      />
+                    </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      onClick={handleGenerateCV}
+                      className="w-full"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Preview & Download CV
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <div>
