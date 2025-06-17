@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, MapPin, Calendar, Building, Briefcase, FileText, Bell, Users, TrendingUp, Edit, Save, X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -562,9 +563,9 @@ const Index = () => {
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</a>
+              <a href="/" className="text-blue-600 font-medium">Home</a>
+              <a href="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</a>
+              <a href="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</a>
               <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</a>
               <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">News</a>
             </nav>
