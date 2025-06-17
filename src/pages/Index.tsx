@@ -6,13 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PostTenderDialog from '@/components/PostTenderDialog';
 import PostJobDialog from '@/components/PostJobDialog';
 import PostCompanyDialog from '@/components/PostCompanyDialog';
 import PostNewsDialog from '@/components/PostNewsDialog';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   console.log('Index component is rendering with editable samples and post options');
+  
+  const { toast } = useToast();
   
   const [featuredTenders, setFeaturedTenders] = useState([
     {
@@ -106,6 +110,11 @@ const Index = () => {
   const [editingJob, setEditingJob] = useState(null);
   const [editingCompany, setEditingCompany] = useState(null);
   const [editingNews, setEditingNews] = useState(null);
+  
+  const [selectedTender, setSelectedTender] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [tenderDetailsOpen, setTenderDetailsOpen] = useState(false);
+  const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
 
   const handleEditTender = (tenderId) => {
     setEditingTender(tenderId);
@@ -173,6 +182,25 @@ const Index = () => {
 
   const handleAddNews = (newNews) => {
     setNewsItems(prev => [newNews, ...prev]);
+  };
+
+  const handleViewTenderDetails = (tender) => {
+    setSelectedTender(tender);
+    setTenderDetailsOpen(true);
+  };
+
+  const handleApplyToJob = (job) => {
+    setSelectedJob(job);
+    setJobDetailsOpen(true);
+  };
+
+  const handleJobApplication = () => {
+    toast({
+      title: "Application Submitted!",
+      description: `Your application for ${selectedJob?.title} at ${selectedJob?.company} has been submitted successfully.`,
+    });
+    setJobDetailsOpen(false);
+    setSelectedJob(null);
   };
 
   const EditableTenderCard = ({ tender }) => {
@@ -257,7 +285,11 @@ const Index = () => {
             Budget: {tender.budget}
           </span>
         </div>
-        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          size="sm" 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => handleViewTenderDetails(tender)}
+        >
           View Details
         </Button>
       </div>
@@ -343,7 +375,11 @@ const Index = () => {
           </span>
           <span>{job.posted}</span>
         </div>
-        <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+        <Button 
+          size="sm" 
+          className="bg-indigo-600 hover:bg-indigo-700"
+          onClick={() => handleApplyToJob(job)}
+        >
           Apply Now
         </Button>
       </div>
@@ -727,6 +763,149 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Tender Details Modal */}
+      <Dialog open={tenderDetailsOpen} onOpenChange={setTenderDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Tender Details</DialogTitle>
+          </DialogHeader>
+          {selectedTender && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {selectedTender.title}
+                </h3>
+                <p className="text-gray-600">{selectedTender.organization}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sector
+                  </label>
+                  <p className="text-gray-900">{selectedTender.sector}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Region
+                  </label>
+                  <p className="text-gray-900">{selectedTender.region}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Budget
+                  </label>
+                  <p className="text-green-600 font-semibold">{selectedTender.budget}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Deadline
+                  </label>
+                  <p className="text-red-600 font-medium">{selectedTender.deadline}</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
+                  This is a detailed description of the tender requirements. 
+                  Please review all specifications and submit your proposal accordingly.
+                </p>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  Download Tender Document
+                </Button>
+                <Button variant="outline">
+                  Save for Later
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Job Application Modal */}
+      <Dialog open={jobDetailsOpen} onOpenChange={setJobDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Apply for Job</DialogTitle>
+          </DialogHeader>
+          {selectedJob && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {selectedJob.title}
+                </h3>
+                <p className="text-gray-600">{selectedJob.company}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location
+                  </label>
+                  <p className="text-gray-900">{selectedJob.location}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Job Type
+                  </label>
+                  <p className="text-gray-900">{selectedJob.type}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Salary Range
+                  </label>
+                  <p className="text-green-600 font-semibold">{selectedJob.salary}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Posted
+                  </label>
+                  <p className="text-gray-600">{selectedJob.posted}</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Job Description
+                </label>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
+                  We are looking for a qualified candidate to join our team. 
+                  This position offers excellent growth opportunities and competitive benefits.
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cover Letter (Optional)
+                </label>
+                <Textarea
+                  placeholder="Write a brief cover letter explaining why you're interested in this position..."
+                  className="min-h-[100px]"
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  className="bg-indigo-600 hover:bg-indigo-700"
+                  onClick={handleJobApplication}
+                >
+                  Submit Application
+                </Button>
+                <Button variant="outline" onClick={() => setJobDetailsOpen(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
