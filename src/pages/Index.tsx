@@ -920,7 +920,7 @@ const Index = () => {
                   <Checkbox 
                     id="auto-cv" 
                     checked={autoCreateCV}
-                    onCheckedChange={setAutoCreateCV}
+                    onCheckedChange={(checked) => setAutoCreateCV(checked === true)}
                   />
                   <label htmlFor="auto-cv" className="text-sm font-medium">
                     Automatically create CV for this application
