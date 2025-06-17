@@ -688,18 +688,8 @@ const Index = () => {
                   <Users className="w-4 h-4 mr-2" />
                   Register as Company
                 </Button>
-                <PostTenderDialog onSubmit={handleAddTender}>
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Post a Tender
-                  </Button>
-                </PostTenderDialog>
-                <PostJobDialog onSubmit={handleAddJob}>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    Post a Job
-                  </Button>
-                </PostJobDialog>
+                <PostTenderDialog onSubmit={handleAddTender} />
+                <PostJobDialog onSubmit={handleAddJob} />
                 <Button className="w-full justify-start" variant="outline">
                   <Bell className="w-4 h-4 mr-2" />
                   Set Up Alerts
