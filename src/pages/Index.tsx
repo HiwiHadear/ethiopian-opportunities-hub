@@ -107,6 +107,39 @@ const Index = () => {
     }
   ]);
 
+  const [promotions, setPromotions] = useState([
+    {
+      id: 1,
+      title: "Premium Tender Access",
+      description: "Get early access to high-value government tenders before they go public",
+      type: "Premium Feature",
+      discount: "30% OFF",
+      validUntil: "2024-07-31",
+      buttonText: "Upgrade Now",
+      gradient: "from-blue-600 to-purple-600"
+    },
+    {
+      id: 2,
+      title: "Job Alert Plus",
+      description: "Never miss your dream job with instant notifications and priority listing",
+      type: "Service",
+      discount: "Free Trial",
+      validUntil: "2024-07-25",
+      buttonText: "Start Free Trial",
+      gradient: "from-green-600 to-teal-600"
+    },
+    {
+      id: 3,
+      title: "Company Profile Boost",
+      description: "Increase your visibility and attract top talent with our featured company package",
+      type: "Marketing",
+      discount: "50% OFF",
+      validUntil: "2024-07-20",
+      buttonText: "Get Featured",
+      gradient: "from-orange-600 to-red-600"
+    }
+  ]);
+
   const [editingTender, setEditingTender] = useState(null);
   const [editingJob, setEditingJob] = useState(null);
   const [editingCompany, setEditingCompany] = useState(null);
@@ -639,6 +672,66 @@ const Index = () => {
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">50,000+</div>
               <div className="text-gray-600">Registered Users</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Promotions Display Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Special Offers</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Don't miss out on these limited-time promotions to boost your career and business opportunities
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {promotions.map((promotion) => (
+              <div key={promotion.id} className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className={`bg-gradient-to-br ${promotion.gradient} p-6 text-white`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      {promotion.type}
+                    </Badge>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">{promotion.discount}</div>
+                      <div className="text-sm opacity-90">Limited Time</div>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold mb-2">{promotion.title}</h3>
+                  <p className="text-white/90 mb-4 leading-relaxed">{promotion.description}</p>
+                  
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm">Valid until:</span>
+                    <span className="font-semibold">{promotion.validUntil}</span>
+                  </div>
+                  
+                  <Button className="w-full bg-white text-gray-900 hover:bg-gray-100 font-semibold">
+                    {promotion.buttonText}
+                  </Button>
+                </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-white/5 rounded-full"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Additional promotion banner */}
+          <div className="mt-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white text-center">
+            <h3 className="text-2xl font-bold mb-2">🎉 Grand Opening Special!</h3>
+            <p className="text-lg mb-4 opacity-90">
+              Join TenderJob Portal today and get exclusive access to premium features for your first month
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" className="bg-white text-indigo-600 hover:bg-gray-100 font-semibold">
+                Sign Up Now - Free Premium Month
+              </Button>
+              <span className="text-sm opacity-75">🕒 Offer expires in 15 days</span>
             </div>
           </div>
         </div>
