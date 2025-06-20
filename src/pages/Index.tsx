@@ -107,39 +107,6 @@ const Index = () => {
     }
   ]);
 
-  const [promotions, setPromotions] = useState([
-    {
-      id: 1,
-      title: "Premium Tender Access",
-      description: "Get early access to high-value government tenders before they go public",
-      type: "Premium Feature",
-      discount: "30% OFF",
-      validUntil: "2024-07-31",
-      buttonText: "Upgrade Now",
-      gradient: "from-blue-600 to-purple-600"
-    },
-    {
-      id: 2,
-      title: "Job Alert Plus",
-      description: "Never miss your dream job with instant notifications and priority listing",
-      type: "Service",
-      discount: "Free Trial",
-      validUntil: "2024-07-25",
-      buttonText: "Start Free Trial",
-      gradient: "from-green-600 to-teal-600"
-    },
-    {
-      id: 3,
-      title: "Company Profile Boost",
-      description: "Increase your visibility and attract top talent with our featured company package",
-      type: "Marketing",
-      discount: "50% OFF",
-      validUntil: "2024-07-20",
-      buttonText: "Get Featured",
-      gradient: "from-orange-600 to-red-600"
-    }
-  ]);
-
   const [editingTender, setEditingTender] = useState(null);
   const [editingJob, setEditingJob] = useState(null);
   const [editingCompany, setEditingCompany] = useState(null);
