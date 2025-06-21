@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { Search, Calendar, Tag, Eye, Edit, Save, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -163,16 +163,18 @@ const News = () => {
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <a href="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-              <a href="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</a>
-              <a href="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</a>
-              <a href="/news" className="text-blue-600 font-medium">News</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</a>
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
+              <Link to="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</Link>
+              <Link to="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</Link>
+              <Link to="/news" className="text-blue-600 font-medium">News</Link>
+              <span className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Companies</span>
             </nav>
 
             <div className="flex items-center space-x-4">
               <PostNewsDialog onSubmit={handleAddNews} />
-              <Button>Sign In</Button>
+              <Link to="/auth">
+                <Button>Sign In</Button>
+              </Link>
             </div>
           </div>
         </div>

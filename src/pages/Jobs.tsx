@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { Search, MapPin, Briefcase, Edit, Save, X, Download } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -242,16 +242,18 @@ const Jobs = () => {
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <a href="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-              <a href="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</a>
-              <a href="/jobs" className="text-indigo-600 font-medium">Jobs</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">News</a>
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
+              <Link to="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</Link>
+              <Link to="/jobs" className="text-indigo-600 font-medium">Jobs</Link>
+              <Link to="/news" className="text-gray-700 hover:text-blue-600 transition-colors">News</Link>
+              <span className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Companies</span>
             </nav>
 
             <div className="flex items-center space-x-4">
               <PostJobDialog onSubmit={handleAddJob} />
-              <Button>Sign In</Button>
+              <Link to="/auth">
+                <Button>Sign In</Button>
+              </Link>
             </div>
           </div>
         </div>
