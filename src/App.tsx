@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Tenders from "./pages/Tenders";
 import Jobs from "./pages/Jobs";
 import News from "./pages/News";
+import Companies from "./pages/Companies";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";

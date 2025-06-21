@@ -167,7 +167,7 @@ const News = () => {
               <Link to="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</Link>
               <Link to="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</Link>
               <Link to="/news" className="text-blue-600 font-medium">News</Link>
-              <span className="text-gray-700 hover:text-blue-600 transition-colors cursor-pointer">Companies</span>
+              <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
