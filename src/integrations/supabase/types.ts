@@ -14,6 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          industry: string
+          location: string
+          logo_url: string | null
+          name: string
+          posted_by: string | null
+          size: string
+          status: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry: string
+          location: string
+          logo_url?: string | null
+          name: string
+          posted_by?: string | null
+          size: string
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string
+          location?: string
+          logo_url?: string | null
+          name?: string
+          posted_by?: string | null
+          size?: string
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          admin_notes: string | null
+          applied_at: string
+          cover_letter: string | null
+          created_at: string
+          cv_data: Json | null
+          email: string
+          full_name: string
+          id: string
+          job_id: string
+          phone: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          applied_at?: string
+          cover_letter?: string | null
+          created_at?: string
+          cv_data?: Json | null
+          email: string
+          full_name: string
+          id?: string
+          job_id: string
+          phone?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          applied_at?: string
+          cover_letter?: string | null
+          created_at?: string
+          cv_data?: Json | null
+          email?: string
+          full_name?: string
+          id?: string
+          job_id?: string
+          phone?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          company: string
+          created_at: string
+          description: string | null
+          id: string
+          job_type: string
+          location: string
+          posted_by: string | null
+          requirements: string | null
+          salary: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          job_type?: string
+          location: string
+          posted_by?: string | null
+          requirements?: string | null
+          salary?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          job_type?: string
+          location?: string
+          posted_by?: string | null
+          requirements?: string | null
+          salary?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -37,6 +189,119 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tender_applications: {
+        Row: {
+          admin_notes: string | null
+          applied_at: string
+          bid_amount: number | null
+          company_email: string
+          company_name: string
+          company_phone: string | null
+          created_at: string
+          id: string
+          proposal_document_url: string | null
+          proposal_summary: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          tender_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          applied_at?: string
+          bid_amount?: number | null
+          company_email: string
+          company_name: string
+          company_phone?: string | null
+          created_at?: string
+          id?: string
+          proposal_document_url?: string | null
+          proposal_summary?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tender_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          applied_at?: string
+          bid_amount?: number | null
+          company_email?: string
+          company_name?: string
+          company_phone?: string | null
+          created_at?: string
+          id?: string
+          proposal_document_url?: string | null
+          proposal_summary?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tender_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tender_applications_tender_id_fkey"
+            columns: ["tender_id"]
+            isOneToOne: false
+            referencedRelation: "tenders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenders: {
+        Row: {
+          bid_guarantee: string
+          created_at: string
+          deadline: string
+          description: string | null
+          id: string
+          organization: string
+          posted_by: string | null
+          region: string
+          requirements: string | null
+          sector: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bid_guarantee: string
+          created_at?: string
+          deadline: string
+          description?: string | null
+          id?: string
+          organization: string
+          posted_by?: string | null
+          region: string
+          requirements?: string | null
+          sector: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bid_guarantee?: string
+          created_at?: string
+          deadline?: string
+          description?: string | null
+          id?: string
+          organization?: string
+          posted_by?: string | null
+          region?: string
+          requirements?: string | null
+          sector?: string
+          status?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
