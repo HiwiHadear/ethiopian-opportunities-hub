@@ -163,7 +163,7 @@ const Tenders = () => {
             Deadline: {tender.deadline}
           </span>
           <span className="font-semibold text-green-600">
-            Budget: {tender.budget}
+            Bid Guarantee: {tender.budget}
           </span>
         </div>
         <Button 
@@ -296,7 +296,7 @@ const Tenders = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Budget
+                    Bid Guarantee
                   </label>
                   <p className="text-green-600 font-semibold">{selectedTender.budget}</p>
                 </div>

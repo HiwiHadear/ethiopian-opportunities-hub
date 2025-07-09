@@ -74,7 +74,7 @@ const PostTenderDialog = ({ onSubmit }: PostTenderDialogProps) => {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="budget">Budget</Label>
+              <Label htmlFor="budget">Bid Guarantee</Label>
               <Input
                 id="budget"
                 value={formData.budget}

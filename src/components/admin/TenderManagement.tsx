@@ -131,7 +131,7 @@ const TenderManagement = () => {
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Organization</TableHead>
-              <TableHead>Budget</TableHead>
+              <TableHead>Bid Guarantee</TableHead>
               <TableHead>Deadline</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
@@ -202,7 +202,7 @@ const TenderManagement = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Budget
+                      Bid Guarantee
                     </label>
                     <p className="text-gray-900">{selectedTender.budget}</p>
                   </div>
