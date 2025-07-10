@@ -4,7 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, AlertTriangle } from 'lucide-react';
+import { companySchema, sanitizeObject } from '@/lib/validation';
+import { z } from 'zod';
 
 interface PostCompanyDialogProps {
   onSubmit: (company: any) => void;
@@ -17,20 +20,48 @@ const PostCompanyDialog = ({ onSubmit }: PostCompanyDialogProps) => {
     sector: '',
     emoji: '🏢'
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newCompany = {
-      id: Date.now(),
-      ...formData
-    };
-    onSubmit(newCompany);
-    setFormData({
-      name: '',
-      sector: '',
-      emoji: '🏢'
-    });
-    setOpen(false);
+    setErrors({});
+    setIsSubmitting(true);
+
+    try {
+      // Sanitize input data
+      const sanitizedData = sanitizeObject(formData);
+      
+      // Validate data
+      const validatedData = companySchema.parse(sanitizedData);
+      
+      const newCompany = {
+        id: Date.now(),
+        ...validatedData
+      };
+      
+      await onSubmit(newCompany);
+      setFormData({
+        name: '',
+        sector: '',
+        emoji: '🏢'
+      });
+      setOpen(false);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0] as string] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        setErrors({ general: 'Failed to create company. Please try again.' });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,6 +77,12 @@ const PostCompanyDialog = ({ onSubmit }: PostCompanyDialogProps) => {
           <DialogTitle>Add New Company</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errors.general && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{errors.general}</AlertDescription>
+            </Alert>
+          )}
           <div>
             <Label htmlFor="emoji">Emoji</Label>
             <Input
@@ -53,9 +90,10 @@ const PostCompanyDialog = ({ onSubmit }: PostCompanyDialogProps) => {
               value={formData.emoji}
               onChange={(e) => setFormData({ ...formData, emoji: e.target.value })}
               placeholder="🏢"
-              className="w-20"
+              className={`w-20 ${errors.emoji ? 'border-red-500' : ''}`}
               required
             />
+            {errors.emoji && <p className="text-sm text-red-500 mt-1">{errors.emoji}</p>}
           </div>
           <div>
             <Label htmlFor="name">Company Name</Label>
@@ -64,7 +102,9 @@ const PostCompanyDialog = ({ onSubmit }: PostCompanyDialogProps) => {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className={errors.name ? 'border-red-500' : ''}
             />
+            {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
           </div>
           <div>
             <Label htmlFor="sector">Sector</Label>
@@ -73,9 +113,13 @@ const PostCompanyDialog = ({ onSubmit }: PostCompanyDialogProps) => {
               value={formData.sector}
               onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
               required
+              className={errors.sector ? 'border-red-500' : ''}
             />
+            {errors.sector && <p className="text-sm text-red-500 mt-1">{errors.sector}</p>}
           </div>
-          <Button type="submit" className="w-full">Add Company</Button>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Adding...' : 'Add Company'}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

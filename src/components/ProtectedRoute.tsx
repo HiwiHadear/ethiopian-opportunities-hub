@@ -1,7 +1,10 @@
 
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,7 +12,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading, error, isAdmin } = useProfile();
+
+  const loading = authLoading || profileLoading;
 
   if (loading) {
     return (
@@ -23,8 +29,31 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
     return <Navigate to="/auth" replace />;
   }
 
-  // For admin routes, we'll check user role later when we have profile data
-  // For now, just check if user is authenticated
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Alert className="max-w-md">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Unable to verify user permissions. Please try again.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (requireAdmin && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Alert className="max-w-md">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Access denied. Administrator privileges required.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 };
