@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Shield, Users, Briefcase, FileText, Bell, Building2, Settings, Search, Filter } from 'lucide-react';
+import { Shield, Users, Briefcase, FileText, Bell, Building2, Settings, Search, Filter, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,6 +9,8 @@ import TenderManagement from '@/components/admin/TenderManagement';
 import JobManagement from '@/components/admin/JobManagement';
 import CompanyManagement from '@/components/admin/CompanyManagement';
 import NotificationCenter from '@/components/admin/NotificationCenter';
+import JobApplicationManagement from '@/components/admin/JobApplicationManagement';
+import TenderApplicationManagement from '@/components/admin/TenderApplicationManagement';
 
 const AdminDashboard = () => {
   const [stats] = useState({
@@ -98,7 +100,7 @@ const AdminDashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="tenders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="tenders" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Tenders
@@ -110,6 +112,14 @@ const AdminDashboard = () => {
             <TabsTrigger value="companies" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               Companies
+            </TabsTrigger>
+            <TabsTrigger value="job-applications" className="flex items-center gap-2">
+              <ClipboardList className="w-4 h-4" />
+              Job Apps
+            </TabsTrigger>
+            <TabsTrigger value="tender-applications" className="flex items-center gap-2">
+              <ClipboardList className="w-4 h-4" />
+              Tender Apps
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="w-4 h-4" />
@@ -127,6 +137,14 @@ const AdminDashboard = () => {
 
           <TabsContent value="companies">
             <CompanyManagement />
+          </TabsContent>
+
+          <TabsContent value="job-applications">
+            <JobApplicationManagement />
+          </TabsContent>
+
+          <TabsContent value="tender-applications">
+            <TenderApplicationManagement />
           </TabsContent>
 
           <TabsContent value="notifications">

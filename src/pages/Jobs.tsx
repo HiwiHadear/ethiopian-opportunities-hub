@@ -11,9 +11,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import PostJobDialog from '@/components/PostJobDialog';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const Jobs = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [jobs, setJobs] = useState([
     {
@@ -67,6 +70,7 @@ const Jobs = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
   const [autoCreateCV, setAutoCreateCV] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
   const [cvData, setCvData] = useState({
     fullName: '',
     email: '',
@@ -116,26 +120,73 @@ const Jobs = () => {
     console.log('Generated CV with data:', cvData);
   };
 
-  const handleJobApplication = () => {
-    if (autoCreateCV) {
-      handleGenerateCV();
+  const handleJobApplication = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit a job application.",
+        variant: "destructive"
+      });
+      return;
     }
-    
-    toast({
-      title: "Application Submitted!",
-      description: `Your application for ${selectedJob?.title} at ${selectedJob?.company} has been submitted successfully.`,
-    });
-    setJobDetailsOpen(false);
-    setSelectedJob(null);
-    setAutoCreateCV(false);
-    setCvData({
-      fullName: '',
-      email: '',
-      phone: '',
-      experience: '',
-      skills: '',
-      education: ''
-    });
+
+    if (autoCreateCV && (!cvData.fullName || !cvData.email)) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in at least your name and email.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const applicationData = {
+        user_id: user.id,
+        job_id: selectedJob.id,
+        full_name: autoCreateCV ? cvData.fullName : user.user_metadata?.full_name || '',
+        email: autoCreateCV ? cvData.email : user.email,
+        phone: autoCreateCV ? cvData.phone : '',
+        cover_letter: coverLetter,
+        cv_data: autoCreateCV ? cvData : null,
+        status: 'pending'
+      };
+
+      const { error } = await supabase
+        .from('job_applications')
+        .insert([applicationData]);
+
+      if (error) throw error;
+
+      if (autoCreateCV) {
+        handleGenerateCV();
+      }
+      
+      toast({
+        title: "Application Submitted!",
+        description: `Your application for ${selectedJob?.title} at ${selectedJob?.company} has been submitted successfully.`,
+      });
+
+      // Reset form
+      setJobDetailsOpen(false);
+      setSelectedJob(null);
+      setAutoCreateCV(false);
+      setCoverLetter('');
+      setCvData({
+        fullName: '',
+        email: '',
+        phone: '',
+        experience: '',
+        skills: '',
+        education: ''
+      });
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit application. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const EditableJobCard = ({ job }) => {
@@ -473,6 +524,8 @@ const Jobs = () => {
                   Cover Letter (Optional)
                 </label>
                 <Textarea
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
                   placeholder="Write a brief cover letter explaining why you're interested in this position..."
                   className="min-h-[100px]"
                 />
