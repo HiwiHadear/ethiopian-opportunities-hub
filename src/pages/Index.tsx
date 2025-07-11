@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, FileText, Briefcase, TrendingUp, Shield, LogIn, LogOut } from "lucide-react";
+import { Building2, Users, FileText, Briefcase, TrendingUp, Shield, LogIn, LogOut, BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
@@ -64,6 +64,12 @@ const Index = () => {
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
                 <Briefcase className="w-5 h-5 mr-2" />
                 Find Jobs
+              </Button>
+            </Link>
+            <Link to="/library">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
+                <BookOpen className="w-5 h-5 mr-2" />
+                Digital Library
               </Button>
             </Link>
           </div>
