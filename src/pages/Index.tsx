@@ -187,7 +187,7 @@ const Index = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><Link to="/tenders" className="hover:text-white">Browse Tenders</Link></li>
                 <li><Link to="/jobs" className="hover:text-white">Find Jobs</Link></li>
-                <li><Link to="/news" className="hover:text-white">Latest News</Link></li>
+                <li><Link to="/library" className="hover:text-white">Digital Library</Link></li>
               </ul>
             </div>
 
