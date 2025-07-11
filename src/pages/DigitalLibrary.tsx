@@ -28,11 +28,17 @@ const DigitalLibrary = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Mock data for library items
+  const handleReadBook = (bookId: number, bookTitle: string) => {
+    // For now, show an alert with book info. In a real app, this would open a reader
+    alert(`Opening "${bookTitle}" in the digital reader. This would launch an interactive book-reading interface with page-flipping animations.`);
+  };
+
+  // Mock data for library items with real book titles
   const libraryItems = [
     {
       id: 1,
-      title: "Introduction to Ethiopian History",
+      title: "A Brief History of Ethiopia",
+      author: "Dr. Bahru Zewde",
       type: "PDF",
       pages: 248,
       category: "History",
@@ -40,11 +46,13 @@ const DigitalLibrary = () => {
       views: 1234,
       bookmarks: 45,
       rating: 4.8,
-      thumbnail: "/placeholder-book.jpg"
+      thumbnail: "/placeholder-book.jpg",
+      description: "Comprehensive overview of Ethiopian history from ancient times to modern era."
     },
     {
       id: 2,
-      title: "Mathematics for Engineering Students",
+      title: "Advanced Engineering Mathematics",
+      author: "Erwin Kreyszig",
       type: "Scanned Document",
       pages: 342,
       category: "Mathematics",
@@ -52,11 +60,13 @@ const DigitalLibrary = () => {
       views: 2156,
       bookmarks: 78,
       rating: 4.9,
-      thumbnail: "/placeholder-book.jpg"
+      thumbnail: "/placeholder-book.jpg",
+      description: "Essential mathematical methods for engineering students and professionals."
     },
     {
       id: 3,
-      title: "Business Management Principles",
+      title: "Principles of Management",
+      author: "Harold Koontz",
       type: "PDF",
       pages: 156,
       category: "Business",
@@ -64,7 +74,50 @@ const DigitalLibrary = () => {
       views: 987,
       bookmarks: 32,
       rating: 4.6,
-      thumbnail: "/placeholder-book.jpg"
+      thumbnail: "/placeholder-book.jpg",
+      description: "Fundamental concepts of modern business management and leadership."
+    },
+    {
+      id: 4,
+      title: "Introduction to Computer Science",
+      author: "Thomas H. Cormen",
+      type: "PDF",
+      pages: 425,
+      category: "Technology",
+      uploadDate: "2024-01-05",
+      views: 1876,
+      bookmarks: 92,
+      rating: 4.7,
+      thumbnail: "/placeholder-book.jpg",
+      description: "Comprehensive introduction to algorithms and data structures."
+    },
+    {
+      id: 5,
+      title: "Modern Physics",
+      author: "Arthur Beiser",
+      type: "Scanned Document",
+      pages: 388,
+      category: "Science",
+      uploadDate: "2024-01-03",
+      views: 1543,
+      bookmarks: 67,
+      rating: 4.5,
+      thumbnail: "/placeholder-book.jpg",
+      description: "Fundamental concepts in modern physics including quantum mechanics."
+    },
+    {
+      id: 6,
+      title: "Ethiopian Literature Anthology",
+      author: "Various Authors",
+      type: "PDF",
+      pages: 278,
+      category: "Literature",
+      uploadDate: "2024-01-01",
+      views: 892,
+      bookmarks: 41,
+      rating: 4.3,
+      thumbnail: "/placeholder-book.jpg",
+      description: "Collection of classic and contemporary Ethiopian literary works."
     }
   ];
 
@@ -191,10 +244,13 @@ const DigitalLibrary = () => {
                 <CardTitle className="text-lg line-clamp-2 group-hover:text-purple-600 transition-colors">
                   {item.title}
                 </CardTitle>
-                <CardDescription>
-                  <Badge variant="outline" className="mr-2">{item.category}</Badge>
-                  {item.pages} pages
-                </CardDescription>
+                <div className="text-sm text-gray-600 mt-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="outline" className="text-xs">{item.category}</Badge>
+                    <span>{item.pages} pages</span>
+                  </div>
+                  <p className="text-xs text-gray-500">by {item.author}</p>
+                </div>
               </CardHeader>
               
               <CardContent className="pt-0">
@@ -216,7 +272,11 @@ const DigitalLibrary = () => {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button className="flex-1" size="sm">
+                  <Button 
+                    className="flex-1" 
+                    size="sm"
+                    onClick={() => handleReadBook(item.id, item.title)}
+                  >
                     <BookOpen className="w-4 h-4 mr-2" />
                     Read
                   </Button>
