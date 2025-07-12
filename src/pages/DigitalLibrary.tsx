@@ -29,8 +29,8 @@ const DigitalLibrary = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const handleReadBook = (bookId: number, bookTitle: string) => {
-    // For now, show an alert with book info. In a real app, this would open a reader
-    alert(`Opening "${bookTitle}" in the digital reader. This would launch an interactive book-reading interface with page-flipping animations.`);
+    // Open book in new tab or navigate to reader
+    window.open(`/reader/${bookId}`, '_blank');
   };
 
   // Mock data for library items with real book titles
