@@ -296,7 +296,7 @@ const Jobs = () => {
               <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
               <Link to="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</Link>
               <Link to="/jobs" className="text-indigo-600 font-medium">Jobs</Link>
-              <Link to="/news" className="text-gray-700 hover:text-blue-600 transition-colors">News</Link>
+              <Link to="/library" className="text-gray-700 hover:text-blue-600 transition-colors">Digital Library</Link>
               <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
             </nav>
 

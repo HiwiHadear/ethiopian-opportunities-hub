@@ -98,7 +98,7 @@ const Companies = () => {
               <Link to="/" className="text-gray-700 hover:text-green-600 transition-colors">Home</Link>
               <Link to="/tenders" className="text-gray-700 hover:text-green-600 transition-colors">Tenders</Link>
               <Link to="/jobs" className="text-gray-700 hover:text-green-600 transition-colors">Jobs</Link>
-              <Link to="/news" className="text-gray-700 hover:text-green-600 transition-colors">News</Link>
+              <Link to="/library" className="text-gray-700 hover:text-green-600 transition-colors">Digital Library</Link>
               <Link to="/companies" className="text-green-600 font-medium">Companies</Link>
             </nav>
 

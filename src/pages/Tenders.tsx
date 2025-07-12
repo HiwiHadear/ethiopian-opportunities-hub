@@ -195,7 +195,7 @@ const Tenders = () => {
               <a href="/tenders" className="text-blue-600 font-medium">Tenders</a>
               <a href="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</a>
               <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">News</a>
+              <a href="/library" className="text-gray-700 hover:text-blue-600 transition-colors">Digital Library</a>
             </nav>
 
             <div className="flex items-center space-x-4">
