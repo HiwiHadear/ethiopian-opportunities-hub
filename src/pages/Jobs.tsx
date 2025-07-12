@@ -13,10 +13,12 @@ import PostJobDialog from '@/components/PostJobDialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 
 const Jobs = () => {
-  const { toast } = useToast();
   const { user } = useAuth();
+  const { isAdmin } = useProfile();
+  const { toast } = useToast();
   
   const [jobs, setJobs] = useState([
     {
@@ -301,10 +303,18 @@ const Jobs = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <PostJobDialog onSubmit={handleAddJob} />
-              <Link to="/auth">
-                <Button>Sign In</Button>
-              </Link>
+              {user && isAdmin && (
+                <PostJobDialog onSubmit={handleAddJob} />
+              )}
+              {!user ? (
+                <Link to="/auth">
+                  <Button>Sign In</Button>
+                </Link>
+              ) : (
+                <Button variant="outline" onClick={() => supabase.auth.signOut()}>
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </div>

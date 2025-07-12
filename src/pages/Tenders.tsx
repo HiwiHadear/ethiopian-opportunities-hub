@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Search, MapPin, Calendar, FileText, Edit, Save, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,8 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PostTenderDialog from '@/components/PostTenderDialog';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 const Tenders = () => {
+  const { user } = useAuth();
+  const { isAdmin } = useProfile();
   const [tenders, setTenders] = useState([
     {
       id: 1,
@@ -191,16 +197,26 @@ const Tenders = () => {
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <a href="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-              <a href="/tenders" className="text-blue-600 font-medium">Tenders</a>
-              <a href="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</a>
-              <a href="/library" className="text-gray-700 hover:text-blue-600 transition-colors">Digital Library</a>
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
+              <Link to="/tenders" className="text-blue-600 font-medium">Tenders</Link>
+              <Link to="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</Link>
+              <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
+              <Link to="/library" className="text-gray-700 hover:text-blue-600 transition-colors">Digital Library</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
-              <PostTenderDialog onSubmit={handleAddTender} />
-              <Button>Sign In</Button>
+              {user && isAdmin && (
+                <PostTenderDialog onSubmit={handleAddTender} />
+              )}
+              {!user ? (
+                <Link to="/auth">
+                  <Button>Sign In</Button>
+                </Link>
+              ) : (
+                <Button variant="outline" onClick={() => supabase.auth.signOut()}>
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </div>

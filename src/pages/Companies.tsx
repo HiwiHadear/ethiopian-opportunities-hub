@@ -9,8 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PostCompanyDialog from '@/components/PostCompanyDialog';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 const Companies = () => {
+  const { user } = useAuth();
+  const { isAdmin } = useProfile();
   const [companies, setCompanies] = useState([
     {
       id: 1,
@@ -103,10 +108,18 @@ const Companies = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <PostCompanyDialog onSubmit={handleAddCompany} />
-              <Link to="/auth">
-                <Button>Sign In</Button>
-              </Link>
+              {user && isAdmin && (
+                <PostCompanyDialog onSubmit={handleAddCompany} />
+              )}
+              {!user ? (
+                <Link to="/auth">
+                  <Button>Sign In</Button>
+                </Link>
+              ) : (
+                <Button variant="outline" onClick={() => supabase.auth.signOut()}>
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </div>
