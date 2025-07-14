@@ -1,4 +1,1 @@
 project_id = "qzjfbqirbxsqdwcbpsst"
-
-[functions.generate-cv]
-verify_jwt = false

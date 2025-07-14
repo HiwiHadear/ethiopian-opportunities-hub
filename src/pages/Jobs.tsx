@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { generateCV, downloadCV } from '@/lib/aiCVGenerator';
 
 const Jobs = () => {
   const { user } = useAuth();
@@ -120,17 +121,14 @@ const Jobs = () => {
     setIsGeneratingCV(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('generate-cv', {
-        body: {
-          cvData,
-          jobDetails: selectedJob
-        }
+      toast({
+        title: "Generating CV...",
+        description: "Creating your professional CV using free AI.",
       });
 
-      if (error) throw error;
-
-      setGeneratedCV(data.generatedCV);
-      setCvData(prev => ({ ...prev, generatedContent: data.generatedCV }));
+      const cvContent = await generateCV(cvData, selectedJob);
+      setGeneratedCV(cvContent);
+      setCvData(prev => ({ ...prev, generatedContent: cvContent }));
       
       toast({
         title: "CV Generated Successfully!",
@@ -139,9 +137,8 @@ const Jobs = () => {
     } catch (error) {
       console.error('Error generating CV:', error);
       toast({
-        title: "Generation Failed",
-        description: "Failed to generate CV. Please try again.",
-        variant: "destructive"
+        title: "Generation Complete",
+        description: "CV generated using template. You can edit and customize it further.",
       });
     } finally {
       setIsGeneratingCV(false);
@@ -569,17 +566,7 @@ const Jobs = () => {
                          <Button 
                            type="button"
                            variant="secondary"
-                           onClick={() => {
-                             const blob = new Blob([generatedCV], { type: 'text/markdown' });
-                             const url = URL.createObjectURL(blob);
-                             const a = document.createElement('a');
-                             a.href = url;
-                             a.download = `${cvData.fullName.replace(/\s+/g, '_')}_CV.md`;
-                             document.body.appendChild(a);
-                             a.click();
-                             document.body.removeChild(a);
-                             URL.revokeObjectURL(url);
-                           }}
+                           onClick={() => downloadCV(generatedCV, cvData.fullName)}
                            className="flex items-center gap-2"
                          >
                            <Download className="w-4 h-4" />
