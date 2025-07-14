@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, 
   ChevronLeft, 
@@ -11,13 +15,41 @@ import {
   Bookmark,
   Settings,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Palette,
+  Type,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const BookReader = () => {
   const { bookId } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  
+  // Reading customization settings
+  const [fontSize, setFontSize] = useState(16);
+  const [lineHeight, setLineHeight] = useState(1.6);
+  const [fontFamily, setFontFamily] = useState('serif');
+  const [textColor, setTextColor] = useState('#374151');
+  const [backgroundColor, setBackgroundColor] = useState('#ffffff');
+  const [theme, setTheme] = useState('light');
+
+  // Predefined color schemes
+  const colorSchemes = {
+    light: { text: '#374151', bg: '#ffffff' },
+    sepia: { text: '#8B4513', bg: '#FDF6E3' },
+    dark: { text: '#E5E7EB', bg: '#1F2937' },
+    night: { text: '#60A5FA', bg: '#0F172A' }
+  };
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    const scheme = colorSchemes[newTheme as keyof typeof colorSchemes];
+    setTextColor(scheme.text);
+    setBackgroundColor(scheme.bg);
+  };
 
   // Sample book data with actual content
   const sampleBooks = {
@@ -202,9 +234,138 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
               <Button variant="outline" size="sm">
                 <Bookmark className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4" />
-              </Button>
+              
+              {/* Reading Settings Dialog */}
+              <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      Reading Settings
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6">
+                    {/* Theme Selection */}
+                    <div className="space-y-3">
+                      <Label className="flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        Color Theme
+                      </Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(colorSchemes).map(([key, scheme]) => (
+                          <Button
+                            key={key}
+                            variant={theme === key ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handleThemeChange(key)}
+                            className="justify-start"
+                            style={{
+                              backgroundColor: theme === key ? undefined : scheme.bg,
+                              color: theme === key ? undefined : scheme.text,
+                              borderColor: scheme.text + '40'
+                            }}
+                          >
+                            {key === 'light' && <Sun className="w-4 h-4 mr-2" />}
+                            {key === 'dark' && <Moon className="w-4 h-4 mr-2" />}
+                            {key === 'sepia' && <div className="w-4 h-4 mr-2 rounded-full bg-amber-200" />}
+                            {key === 'night' && <div className="w-4 h-4 mr-2 rounded-full bg-blue-900" />}
+                            {key.charAt(0).toUpperCase() + key.slice(1)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Font Settings */}
+                    <div className="space-y-3">
+                      <Label className="flex items-center gap-2">
+                        <Type className="w-4 h-4" />
+                        Font Family
+                      </Label>
+                      <Select value={fontFamily} onValueChange={setFontFamily}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="serif">Serif (Times)</SelectItem>
+                          <SelectItem value="sans-serif">Sans-serif (Arial)</SelectItem>
+                          <SelectItem value="monospace">Monospace (Code)</SelectItem>
+                          <SelectItem value="Georgia">Georgia</SelectItem>
+                          <SelectItem value="Palatino">Palatino</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Font Size */}
+                    <div className="space-y-3">
+                      <Label>Font Size: {fontSize}px</Label>
+                      <Slider
+                        value={[fontSize]}
+                        onValueChange={(value) => setFontSize(value[0])}
+                        max={24}
+                        min={12}
+                        step={1}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Line Height */}
+                    <div className="space-y-3">
+                      <Label>Line Height: {lineHeight.toFixed(1)}</Label>
+                      <Slider
+                        value={[lineHeight]}
+                        onValueChange={(value) => setLineHeight(value[0])}
+                        max={2.5}
+                        min={1.2}
+                        step={0.1}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Custom Colors */}
+                    <div className="space-y-3">
+                      <Label>Custom Colors</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm">Text Color</Label>
+                          <div className="flex items-center gap-2 mt-1">
+                            <input
+                              type="color"
+                              value={textColor}
+                              onChange={(e) => setTextColor(e.target.value)}
+                              className="w-8 h-8 rounded border"
+                            />
+                            <span className="text-xs text-gray-500">{textColor}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm">Background</Label>
+                          <div className="flex items-center gap-2 mt-1">
+                            <input
+                              type="color"
+                              value={backgroundColor}
+                              onChange={(e) => setBackgroundColor(e.target.value)}
+                              className="w-8 h-8 rounded border"
+                            />
+                            <span className="text-xs text-gray-500">{backgroundColor}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <Button onClick={() => setSettingsOpen(false)} className="w-full">
+                        Apply Settings
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
@@ -212,20 +373,35 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Book Content */}
-        <Card className="mb-6">
-          <CardContent className="p-8" style={{ fontSize: `${zoom}%` }}>
+        <Card className="mb-6" style={{ backgroundColor: backgroundColor }}>
+          <CardContent 
+            className="p-8" 
+            style={{ 
+              fontSize: `${fontSize}px`,
+              lineHeight: lineHeight,
+              fontFamily: fontFamily,
+              color: textColor,
+              backgroundColor: backgroundColor
+            }}
+          >
             {currentPageContent ? (
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-6">{currentPageContent.title}</h1>
-                <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                <h1 className="text-3xl font-bold mb-6" style={{ color: textColor }}>
+                  {currentPageContent.title}
+                </h1>
+                <div className="prose prose-lg max-w-none leading-relaxed">
                   {currentPageContent.text.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4">{paragraph}</p>
+                    <p key={index} className="mb-4" style={{ color: textColor }}>
+                      {paragraph}
+                    </p>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500">Content for page {currentPage} is not available.</p>
+                <p style={{ color: textColor, opacity: 0.7 }}>
+                  Content for page {currentPage} is not available.
+                </p>
               </div>
             )}
           </CardContent>
