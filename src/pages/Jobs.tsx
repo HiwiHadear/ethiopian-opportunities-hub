@@ -104,7 +104,10 @@ const Jobs = () => {
     setJobDetailsOpen(true);
   };
 
-  const handleGenerateCV = () => {
+  const [generatedCV, setGeneratedCV] = useState('');
+  const [isGeneratingCV, setIsGeneratingCV] = useState(false);
+
+  const handleGenerateCV = async () => {
     if (!cvData.fullName || !cvData.email) {
       toast({
         title: "Missing Information",
@@ -114,12 +117,35 @@ const Jobs = () => {
       return;
     }
 
-    toast({
-      title: "CV Generated Successfully!",
-      description: "Your CV has been automatically created and is ready for download.",
-    });
+    setIsGeneratingCV(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-cv', {
+        body: {
+          cvData,
+          jobDetails: selectedJob
+        }
+      });
 
-    console.log('Generated CV with data:', cvData);
+      if (error) throw error;
+
+      setGeneratedCV(data.generatedCV);
+      setCvData(prev => ({ ...prev, generatedContent: data.generatedCV }));
+      
+      toast({
+        title: "CV Generated Successfully!",
+        description: "Your AI-powered CV has been created and is ready for review.",
+      });
+    } catch (error) {
+      console.error('Error generating CV:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate CV. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingCV(false);
+    }
   };
 
   const handleJobApplication = async () => {
@@ -159,8 +185,8 @@ const Jobs = () => {
 
       if (error) throw error;
 
-      if (autoCreateCV) {
-        handleGenerateCV();
+      if (autoCreateCV && generatedCV) {
+        // CV was already generated, include it in the application
       }
       
       toast({
@@ -181,6 +207,7 @@ const Jobs = () => {
         skills: '',
         education: ''
       });
+      setGeneratedCV('');
     } catch (error) {
       console.error('Error submitting application:', error);
       toast({
@@ -517,14 +544,58 @@ const Jobs = () => {
                       />
                     </div>
                     
-                    <Button 
-                      variant="outline" 
-                      onClick={handleGenerateCV}
-                      className="w-full"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Preview & Download CV
-                    </Button>
+                     <div className="flex gap-2">
+                       <Button 
+                         type="button"
+                         variant="outline"
+                         onClick={handleGenerateCV}
+                         disabled={!cvData.fullName || !cvData.email || isGeneratingCV}
+                         className="flex items-center gap-2 flex-1"
+                       >
+                         {isGeneratingCV ? (
+                           <>
+                             <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                             Generating...
+                           </>
+                         ) : (
+                           <>
+                             <Download className="w-4 h-4" />
+                             Generate AI CV
+                           </>
+                         )}
+                       </Button>
+                       
+                       {generatedCV && (
+                         <Button 
+                           type="button"
+                           variant="secondary"
+                           onClick={() => {
+                             const blob = new Blob([generatedCV], { type: 'text/markdown' });
+                             const url = URL.createObjectURL(blob);
+                             const a = document.createElement('a');
+                             a.href = url;
+                             a.download = `${cvData.fullName.replace(/\s+/g, '_')}_CV.md`;
+                             document.body.appendChild(a);
+                             a.click();
+                             document.body.removeChild(a);
+                             URL.revokeObjectURL(url);
+                           }}
+                           className="flex items-center gap-2"
+                         >
+                           <Download className="w-4 h-4" />
+                           Download
+                         </Button>
+                       )}
+                     </div>
+                     
+                     {generatedCV && (
+                       <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                         <h4 className="font-semibold mb-2">Generated CV Preview:</h4>
+                         <div className="max-h-40 overflow-y-auto text-sm text-gray-700 whitespace-pre-wrap">
+                           {generatedCV.substring(0, 500)}...
+                         </div>
+                       </div>
+                     )}
                   </div>
                 )}
               </div>
