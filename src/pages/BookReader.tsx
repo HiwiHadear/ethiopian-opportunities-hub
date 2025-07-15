@@ -13,13 +13,18 @@ import {
   ChevronRight, 
   BookOpen,
   Bookmark,
+  BookmarkCheck,
   Settings,
   ZoomIn,
   ZoomOut,
   Palette,
   Type,
   Sun,
-  Moon
+  Moon,
+  Highlighter,
+  Eraser,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 const BookReader = () => {
@@ -35,6 +40,18 @@ const BookReader = () => {
   const [textColor, setTextColor] = useState('#374151');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [theme, setTheme] = useState('light');
+
+  // Bookmarks and highlights state
+  const [bookmarks, setBookmarks] = useState<{[key: string]: {page: number, title: string, timestamp: string}}>({});
+  const [highlights, setHighlights] = useState<{[key: string]: {text: string, color: string, page: number, id: string}}>({});
+  const [highlightMode, setHighlightMode] = useState(false);
+  const [highlightColor, setHighlightColor] = useState('#FFFF00');
+  const [selectedText, setSelectedText] = useState('');
+  const [showBookmarks, setShowBookmarks] = useState(false);
+  const [showHighlights, setShowHighlights] = useState(false);
+
+  // Highlight colors
+  const highlightColors = ['#FFFF00', '#FFB6C1', '#90EE90', '#87CEEB', '#DDA0DD', '#F0E68C'];
 
   // Predefined color schemes
   const colorSchemes = {
@@ -185,6 +202,74 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
   const zoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const zoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
 
+  // Bookmark functions
+  const addBookmark = () => {
+    const bookmarkId = `${bookId}-${currentPage}`;
+    const newBookmark = {
+      page: currentPage,
+      title: currentPageContent?.title || `Page ${currentPage}`,
+      timestamp: new Date().toLocaleString()
+    };
+    setBookmarks(prev => ({ ...prev, [bookmarkId]: newBookmark }));
+  };
+
+  const removeBookmark = (bookmarkId: string) => {
+    setBookmarks(prev => {
+      const updated = { ...prev };
+      delete updated[bookmarkId];
+      return updated;
+    });
+  };
+
+  const isBookmarked = () => {
+    return bookmarks[`${bookId}-${currentPage}`] !== undefined;
+  };
+
+  // Highlight functions
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim()) {
+      setSelectedText(selection.toString().trim());
+      if (highlightMode) {
+        addHighlight(selection.toString().trim());
+        selection.removeAllRanges();
+      }
+    }
+  };
+
+  const addHighlight = (text: string) => {
+    const highlightId = `${bookId}-${currentPage}-${Date.now()}`;
+    const newHighlight = {
+      text,
+      color: highlightColor,
+      page: currentPage,
+      id: highlightId
+    };
+    setHighlights(prev => ({ ...prev, [highlightId]: newHighlight }));
+  };
+
+  const removeHighlight = (highlightId: string) => {
+    setHighlights(prev => {
+      const updated = { ...prev };
+      delete updated[highlightId];
+      return updated;
+    });
+  };
+
+  const renderTextWithHighlights = (text: string) => {
+    let highlightedText = text;
+    const pageHighlights = Object.values(highlights).filter(h => h.page === currentPage);
+    
+    pageHighlights.forEach(highlight => {
+      const regex = new RegExp(`(${highlight.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      highlightedText = highlightedText.replace(regex, 
+        `<mark style="background-color: ${highlight.color}; cursor: pointer;" data-highlight-id="${highlight.id}">$1</mark>`
+      );
+    });
+    
+    return highlightedText;
+  };
+
   if (!currentBook) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
@@ -231,8 +316,21 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
               <Button variant="outline" size="sm" onClick={zoomIn}>
                 <ZoomIn className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm">
-                <Bookmark className="w-4 h-4" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={addBookmark}
+                className={isBookmarked() ? 'bg-primary text-primary-foreground' : ''}
+              >
+                {isBookmarked() ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+              </Button>
+              
+              <Button 
+                variant={highlightMode ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setHighlightMode(!highlightMode)}
+              >
+                <Highlighter className="w-4 h-4" />
               </Button>
               
               {/* Reading Settings Dialog */}
@@ -372,6 +470,32 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Highlight Controls */}
+        {highlightMode && (
+          <Card className="mb-4 border-primary">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-medium">Highlight Mode Active</span>
+                  <div className="flex space-x-2">
+                    {highlightColors.map(color => (
+                      <button
+                        key={color}
+                        onClick={() => setHighlightColor(color)}
+                        className={`w-6 h-6 rounded border-2 ${highlightColor === color ? 'border-gray-800' : 'border-gray-300'}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setHighlightMode(false)}>
+                  Exit Highlight Mode
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Book Content */}
         <Card className="mb-6" style={{ backgroundColor: backgroundColor }}>
           <CardContent 
@@ -383,6 +507,7 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
               color: textColor,
               backgroundColor: backgroundColor
             }}
+            onMouseUp={handleTextSelection}
           >
             {currentPageContent ? (
               <div>
@@ -391,9 +516,21 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
                 </h1>
                 <div className="prose prose-lg max-w-none leading-relaxed">
                   {currentPageContent.text.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4" style={{ color: textColor }}>
-                      {paragraph}
-                    </p>
+                    <p 
+                      key={index} 
+                      className="mb-4" 
+                      style={{ color: textColor }}
+                      dangerouslySetInnerHTML={{ __html: renderTextWithHighlights(paragraph) }}
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.tagName === 'MARK') {
+                          const highlightId = target.getAttribute('data-highlight-id');
+                          if (highlightId && !highlightMode) {
+                            removeHighlight(highlightId);
+                          }
+                        }
+                      }}
+                    />
                   ))}
                 </div>
               </div>
@@ -406,6 +543,109 @@ Example: A binary search algorithm has O(log n) complexity, making it much more 
             )}
           </CardContent>
         </Card>
+
+        {/* Bookmarks and Highlights Panel */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Bookmarks */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Bookmark className="w-5 h-5" />
+                  Bookmarks ({Object.keys(bookmarks).length})
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowBookmarks(!showBookmarks)}
+                >
+                  {showBookmarks ? 'Hide' : 'Show'}
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            {showBookmarks && (
+              <CardContent>
+                {Object.keys(bookmarks).length === 0 ? (
+                  <p className="text-muted-foreground text-sm">No bookmarks yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {Object.entries(bookmarks).map(([id, bookmark]) => (
+                      <div key={id} className="flex items-center justify-between p-2 bg-muted rounded">
+                        <div 
+                          className="flex-1 cursor-pointer"
+                          onClick={() => setCurrentPage(bookmark.page)}
+                        >
+                          <p className="font-medium text-sm">{bookmark.title}</p>
+                          <p className="text-xs text-muted-foreground">Page {bookmark.page} • {bookmark.timestamp}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeBookmark(id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Highlights */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Highlighter className="w-5 h-5" />
+                  Highlights ({Object.keys(highlights).length})
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowHighlights(!showHighlights)}
+                >
+                  {showHighlights ? 'Hide' : 'Show'}
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            {showHighlights && (
+              <CardContent>
+                {Object.keys(highlights).length === 0 ? (
+                  <p className="text-muted-foreground text-sm">No highlights yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {Object.entries(highlights).map(([id, highlight]) => (
+                      <div key={id} className="flex items-start justify-between p-2 bg-muted rounded">
+                        <div 
+                          className="flex-1 cursor-pointer"
+                          onClick={() => setCurrentPage(highlight.page)}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <div 
+                              className="w-3 h-3 rounded"
+                              style={{ backgroundColor: highlight.color }}
+                            />
+                            <span className="text-xs text-muted-foreground">Page {highlight.page}</span>
+                          </div>
+                          <p className="text-sm">{highlight.text.substring(0, 100)}...</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeHighlight(id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        </div>
 
         {/* Navigation Controls */}
         <div className="flex justify-between items-center">
