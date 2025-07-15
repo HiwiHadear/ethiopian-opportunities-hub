@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import DocumentUploadDialog from "@/components/DocumentUploadDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import { 
   BookOpen, 
   Upload, 
@@ -157,10 +161,7 @@ const DigitalLibrary = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm">
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Document
-              </Button>
+              <DocumentUploadDialog />
               <Button variant="outline" size="sm">
                 <Bookmark className="w-4 h-4 mr-2" />
                 My Library
@@ -184,10 +185,15 @@ const DigitalLibrary = () => {
           
           {/* Upload Feature Highlight */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
-              <ScanLine className="w-5 h-5 mr-2" />
-              Scan & Convert Document
-            </Button>
+            <DocumentUploadDialog 
+              onUploadComplete={() => toast.success("Document uploaded successfully!")}
+              trigger={
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+                  <ScanLine className="w-5 h-5 mr-2" />
+                  Scan & Convert Document
+                </Button>
+              }
+            />
             <Button variant="outline" size="lg">
               <BookOpen className="w-5 h-5 mr-2" />
               Browse Library
