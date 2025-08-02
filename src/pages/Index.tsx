@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, FileText, Briefcase, TrendingUp, Shield, LogIn, LogOut, BookOpen } from "lucide-react";
+import { Building2, Users, FileText, Briefcase, TrendingUp, Shield, LogIn, LogOut, GraduationCap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
@@ -66,10 +66,10 @@ const Index = () => {
                 Find Jobs
               </Button>
             </Link>
-            <Link to="/library">
+            <Link to="/scholarships">
               <Button variant="outline" size="lg" className="w-full sm:w-auto bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
-                <BookOpen className="w-5 h-5 mr-2" />
-                Digital Library
+                <GraduationCap className="w-5 h-5 mr-2" />
+                Scholarships
               </Button>
             </Link>
           </div>
@@ -193,7 +193,7 @@ const Index = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><Link to="/tenders" className="hover:text-white">Browse Tenders</Link></li>
                 <li><Link to="/jobs" className="hover:text-white">Find Jobs</Link></li>
-                <li><Link to="/library" className="hover:text-white">Digital Library</Link></li>
+                <li><Link to="/scholarships" className="hover:text-white">Scholarships</Link></li>
               </ul>
             </div>
 
