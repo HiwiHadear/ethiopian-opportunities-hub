@@ -37,6 +37,7 @@ const Scholarships = () => {
       amount: "Full Tuition + Living Allowance",
       deadline: "2024-12-15",
       location: "Ethiopia",
+      applicationUrl: "https://www.moe.gov.et/scholarships",
       description: "Merit-based scholarship for outstanding Ethiopian students pursuing undergraduate studies in Ethiopian universities.",
       requirements: [
         "Ethiopian citizenship",
@@ -60,6 +61,7 @@ const Scholarships = () => {
       amount: "$15,000 per year",
       deadline: "2024-11-30",
       location: "Various African Countries",
+      applicationUrl: "https://au.int/en/scholarships",
       description: "Scholarship program for African students pursuing postgraduate studies in priority fields for African development.",
       requirements: [
         "African citizenship",
@@ -83,6 +85,7 @@ const Scholarships = () => {
       amount: "Full Funding",
       deadline: "2024-10-31",
       location: "USA, UK, Australia",
+      applicationUrl: "https://www.worldbank.org/en/programs/scholarships-program",
       description: "Comprehensive scholarship for developing country nationals to pursue master's degrees in development-related fields.",
       requirements: [
         "Developing country citizenship",
@@ -106,6 +109,7 @@ const Scholarships = () => {
       amount: "$5,000 per year",
       deadline: "2024-09-15",
       location: "Ethiopia",
+      applicationUrl: "https://www.ewit.org/scholarships",
       description: "Empowering Ethiopian women to pursue careers in Science, Technology, Engineering, and Mathematics.",
       requirements: [
         "Female Ethiopian citizen",
@@ -129,6 +133,7 @@ const Scholarships = () => {
       amount: "€20,000",
       deadline: "2024-08-30",
       location: "Europe",
+      applicationUrl: "https://www.un.org/sustainabledevelopment/scholarships",
       description: "Supporting future leaders in environmental sustainability and climate action.",
       requirements: [
         "Any nationality",
@@ -217,6 +222,7 @@ const Scholarships = () => {
               size="sm" 
               variant="outline"
               className="flex-1"
+              onClick={() => window.open(scholarship.applicationUrl, '_blank')}
             >
               <ExternalLink className="w-4 h-4 mr-1" />
               Apply Now
@@ -322,7 +328,11 @@ const Scholarships = () => {
               </div>
 
               <div className="flex gap-4 pt-6 border-t">
-                <Button size="lg" className="flex-1">
+                <Button 
+                  size="lg" 
+                  className="flex-1"
+                  onClick={() => window.open(selectedScholarship.applicationUrl, '_blank')}
+                >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Apply for This Scholarship
                 </Button>
