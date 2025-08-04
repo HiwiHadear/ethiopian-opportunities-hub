@@ -201,7 +201,7 @@ const Tenders = () => {
               <Link to="/tenders" className="text-blue-600 font-medium">Tenders</Link>
               <Link to="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</Link>
               <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
-              <Link to="/library" className="text-gray-700 hover:text-blue-600 transition-colors">Digital Library</Link>
+              <Link to="/scholarships" className="text-gray-700 hover:text-blue-600 transition-colors">Scholarships</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
