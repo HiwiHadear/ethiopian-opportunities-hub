@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,136 +19,42 @@ import {
   Award
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Scholarships = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
   const [selectedScholarship, setSelectedScholarship] = useState<any>(null);
+  const [scholarships, setScholarships] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample scholarship data
-  const scholarships = [
-    {
-      id: 1,
-      title: "Ethiopian Government Merit Scholarship",
-      organization: "Ministry of Education",
-      level: "undergraduate",
-      field: "All Fields",
-      amount: "Full Tuition + Living Allowance",
-      deadline: "2024-12-15",
-      location: "Ethiopia",
-      applicationUrl: "https://www.moe.gov.et/scholarships",
-      description: "Merit-based scholarship for outstanding Ethiopian students pursuing undergraduate studies in Ethiopian universities.",
-      requirements: [
-        "Ethiopian citizenship",
-        "Minimum GPA of 3.5",
-        "Financial need demonstration",
-        "Age below 25 years"
-      ],
-      benefits: [
-        "Full tuition coverage",
-        "Monthly living allowance",
-        "Book allowance",
-        "Health insurance"
-      ]
-    },
-    {
-      id: 2,
-      title: "African Union Scholarship Program",
-      organization: "African Union Commission",
-      level: "postgraduate",
-      field: "Engineering, Medicine, Agriculture",
-      amount: "$15,000 per year",
-      deadline: "2024-11-30",
-      location: "Various African Countries",
-      applicationUrl: "https://au.int/en/scholarships",
-      description: "Scholarship program for African students pursuing postgraduate studies in priority fields for African development.",
-      requirements: [
-        "African citizenship",
-        "Bachelor's degree with honors",
-        "Work experience (2+ years)",
-        "Language proficiency"
-      ],
-      benefits: [
-        "Tuition fees",
-        "Travel allowance",
-        "Research funding",
-        "Mentorship program"
-      ]
-    },
-    {
-      id: 3,
-      title: "World Bank Graduate Scholarship",
-      organization: "World Bank Group",
-      level: "masters",
-      field: "Development Studies, Economics, Public Policy",
-      amount: "Full Funding",
-      deadline: "2024-10-31",
-      location: "USA, UK, Australia",
-      applicationUrl: "https://www.worldbank.org/en/programs/scholarships-program",
-      description: "Comprehensive scholarship for developing country nationals to pursue master's degrees in development-related fields.",
-      requirements: [
-        "Developing country citizenship",
-        "Bachelor's degree",
-        "3+ years work experience",
-        "IELTS/TOEFL scores"
-      ],
-      benefits: [
-        "Full tuition and fees",
-        "Living expenses",
-        "Travel costs",
-        "Internship opportunities"
-      ]
-    },
-    {
-      id: 4,
-      title: "Ethiopian Women in STEM Scholarship",
-      organization: "Ethiopian Women in Tech Foundation",
-      level: "undergraduate",
-      field: "STEM Fields",
-      amount: "$5,000 per year",
-      deadline: "2024-09-15",
-      location: "Ethiopia",
-      applicationUrl: "https://www.ewit.org/scholarships",
-      description: "Empowering Ethiopian women to pursue careers in Science, Technology, Engineering, and Mathematics.",
-      requirements: [
-        "Female Ethiopian citizen",
-        "Accepted in STEM program",
-        "Strong academic record",
-        "Leadership potential"
-      ],
-      benefits: [
-        "Tuition support",
-        "Mentorship program",
-        "Internship placement",
-        "Career guidance"
-      ]
-    },
-    {
-      id: 5,
-      title: "UN Sustainability Scholarship",
-      organization: "United Nations",
-      level: "masters",
-      field: "Environmental Studies, Sustainable Development",
-      amount: "€20,000",
-      deadline: "2024-08-30",
-      location: "Europe",
-      applicationUrl: "https://www.un.org/sustainabledevelopment/scholarships",
-      description: "Supporting future leaders in environmental sustainability and climate action.",
-      requirements: [
-        "Any nationality",
-        "Environmental background",
-        "Community involvement",
-        "Research proposal"
-      ],
-      benefits: [
-        "Tuition coverage",
-        "Living stipend",
-        "Conference participation",
-        "Network access"
-      ]
+  useEffect(() => {
+    fetchScholarships();
+  }, []);
+
+  const fetchScholarships = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("scholarships")
+        .select("*")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setScholarships(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch scholarships",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filteredScholarships = scholarships.filter(scholarship => {
     const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -222,7 +128,7 @@ const Scholarships = () => {
               size="sm" 
               variant="outline"
               className="flex-1"
-              onClick={() => window.open(scholarship.applicationUrl, '_blank')}
+              onClick={() => window.open(scholarship.application_url, '_blank')}
             >
               <ExternalLink className="w-4 h-4 mr-1" />
               Apply Now
@@ -331,7 +237,7 @@ const Scholarships = () => {
                 <Button 
                   size="lg" 
                   className="flex-1"
-                  onClick={() => window.open(selectedScholarship.applicationUrl, '_blank')}
+                  onClick={() => window.open(selectedScholarship.application_url, '_blank')}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Apply for This Scholarship

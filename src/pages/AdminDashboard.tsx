@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Shield, Users, Briefcase, FileText, Bell, Building2, Settings, Search, Filter, ClipboardList } from 'lucide-react';
+import { Shield, Users, Briefcase, FileText, Bell, Building2, Settings, Search, Filter, ClipboardList, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import TenderManagement from '@/components/admin/TenderManagement';
 import JobManagement from '@/components/admin/JobManagement';
 import CompanyManagement from '@/components/admin/CompanyManagement';
+import { ScholarshipManagement } from '@/components/admin/ScholarshipManagement';
 import NotificationCenter from '@/components/admin/NotificationCenter';
 import JobApplicationManagement from '@/components/admin/JobApplicationManagement';
 import TenderApplicationManagement from '@/components/admin/TenderApplicationManagement';
@@ -100,7 +101,7 @@ const AdminDashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="tenders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="tenders" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Tenders
@@ -112,6 +113,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="companies" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               Companies
+            </TabsTrigger>
+            <TabsTrigger value="scholarships" className="flex items-center gap-2">
+              <GraduationCap className="w-4 h-4" />
+              Scholarships
             </TabsTrigger>
             <TabsTrigger value="job-applications" className="flex items-center gap-2">
               <ClipboardList className="w-4 h-4" />
@@ -137,6 +142,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="companies">
             <CompanyManagement />
+          </TabsContent>
+
+          <TabsContent value="scholarships">
+            <ScholarshipManagement />
           </TabsContent>
 
           <TabsContent value="job-applications">

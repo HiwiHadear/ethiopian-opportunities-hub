@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
@@ -234,6 +234,63 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      scholarships: {
+        Row: {
+          amount: string
+          application_url: string
+          benefits: string[] | null
+          created_at: string
+          deadline: string
+          description: string | null
+          field: string
+          id: string
+          level: string
+          location: string
+          organization: string
+          posted_by: string | null
+          requirements: string[] | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: string
+          application_url: string
+          benefits?: string[] | null
+          created_at?: string
+          deadline: string
+          description?: string | null
+          field: string
+          id?: string
+          level: string
+          location: string
+          organization: string
+          posted_by?: string | null
+          requirements?: string[] | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: string
+          application_url?: string
+          benefits?: string[] | null
+          created_at?: string
+          deadline?: string
+          description?: string | null
+          field?: string
+          id?: string
+          level?: string
+          location?: string
+          organization?: string
+          posted_by?: string | null
+          requirements?: string[] | null
+          status?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
