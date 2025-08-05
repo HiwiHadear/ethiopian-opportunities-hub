@@ -15,11 +15,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { generateCV, downloadCV } from '@/lib/aiCVGenerator';
+import { Calendar } from 'lucide-react';
 
 const Jobs = () => {
   const { user } = useAuth();
   const { isAdmin } = useProfile();
   const { toast } = useToast();
+
+  // Helper function to check if job is expired
+  const isJobExpired = (deadline) => {
+    const today = new Date();
+    const deadlineDate = new Date(deadline);
+    return deadlineDate < today;
+  };
   
   const [jobs, setJobs] = useState([
     {
@@ -29,7 +37,8 @@ const Jobs = () => {
       location: "Addis Ababa",
       salary: "35,000 - 45,000 ETB",
       type: "Full-time",
-      posted: "2 days ago"
+      posted: "2 days ago",
+      deadline: "2024-07-20"
     },
     {
       id: 2,
@@ -38,7 +47,8 @@ const Jobs = () => {
       location: "Addis Ababa",
       salary: "40,000 - 55,000 ETB",
       type: "Full-time",
-      posted: "1 day ago"
+      posted: "1 day ago",
+      deadline: "2024-07-25"
     },
     {
       id: 3,
@@ -47,7 +57,8 @@ const Jobs = () => {
       location: "Bahir Dar",
       salary: "25,000 - 35,000 ETB",
       type: "Full-time",
-      posted: "3 days ago"
+      posted: "3 days ago",
+      deadline: "2024-07-15"
     },
     {
       id: 4,
@@ -56,7 +67,8 @@ const Jobs = () => {
       location: "Dire Dawa",
       salary: "28,000 - 38,000 ETB",
       type: "Full-time",
-      posted: "4 days ago"
+      posted: "4 days ago",
+      deadline: "2024-07-18"
     },
     {
       id: 5,
@@ -65,7 +77,8 @@ const Jobs = () => {
       location: "Hawassa",
       salary: "32,000 - 42,000 ETB",
       type: "Full-time",
-      posted: "5 days ago"
+      posted: "5 days ago",
+      deadline: "2024-08-01"
     }
   ]);
 
@@ -218,6 +231,7 @@ const Jobs = () => {
   const EditableJobCard = ({ job }) => {
     const [editData, setEditData] = useState(job);
     const isEditing = editingJob === job.id;
+    const isExpired = isJobExpired(job.deadline);
 
     if (isEditing) {
       return (
@@ -273,33 +287,48 @@ const Jobs = () => {
     }
 
     return (
-      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
+        isExpired ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
+      }`}>
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
           <div className="flex items-center gap-2">
-            <Badge variant="outline">{job.type}</Badge>
+            <Badge 
+              variant={isExpired ? "destructive" : "outline"}
+              className={isExpired ? "bg-red-500 text-white" : ""}
+            >
+              {isExpired ? "EXPIRED" : job.type}
+            </Badge>
             <Button size="sm" variant="ghost" onClick={() => handleEditJob(job.id)}>
               <Edit className="w-4 h-4" />
             </Button>
           </div>
         </div>
         <p className="text-gray-600 mb-3">{job.company}</p>
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-          <span className="flex items-center">
+        <div className="flex flex-wrap gap-4 text-sm mb-3">
+          <span className="flex items-center text-gray-500">
             <MapPin className="w-4 h-4 mr-1" />
             {job.location}
           </span>
           <span className="font-semibold text-green-600">
             {job.salary}
           </span>
-          <span>{job.posted}</span>
+          <span className={`flex items-center font-medium ${
+            isExpired ? 'text-red-600' : 'text-green-600'
+          }`}>
+            <Calendar className="w-4 h-4 mr-1" />
+            Deadline: {job.deadline}
+            {isExpired && <span className="ml-2 text-red-500 font-bold">EXPIRED</span>}
+          </span>
+          <span className="text-gray-500">{job.posted}</span>
         </div>
         <Button 
           size="sm" 
-          className="bg-indigo-600 hover:bg-indigo-700"
+          className={isExpired ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
           onClick={() => handleApplyToJob(job)}
+          disabled={isExpired}
         >
-          Apply Now
+          {isExpired ? "Expired" : "Apply Now"}
         </Button>
       </div>
     );

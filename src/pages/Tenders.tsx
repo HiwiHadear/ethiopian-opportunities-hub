@@ -90,9 +90,17 @@ const Tenders = () => {
     setTenderDetailsOpen(true);
   };
 
+  // Helper function to check if tender is expired
+  const isTenderExpired = (deadline) => {
+    const today = new Date();
+    const deadlineDate = new Date(deadline);
+    return deadlineDate < today;
+  };
+
   const EditableTenderCard = ({ tender }) => {
     const [editData, setEditData] = useState(tender);
     const isEditing = editingTender === tender.id;
+    const isExpired = isTenderExpired(tender.deadline);
 
     if (isEditing) {
       return (
@@ -148,25 +156,35 @@ const Tenders = () => {
     }
 
     return (
-      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
+        isExpired ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
+      }`}>
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-lg text-gray-900">{tender.title}</h3>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{tender.sector}</Badge>
+            <Badge 
+              variant={isExpired ? "destructive" : "secondary"}
+              className={isExpired ? "bg-red-500 text-white" : ""}
+            >
+              {isExpired ? "EXPIRED" : tender.sector}
+            </Badge>
             <Button size="sm" variant="ghost" onClick={() => handleEditTender(tender.id)}>
               <Edit className="w-4 h-4" />
             </Button>
           </div>
         </div>
         <p className="text-gray-600 mb-3">{tender.organization}</p>
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-          <span className="flex items-center">
+        <div className="flex flex-wrap gap-4 text-sm mb-3">
+          <span className="flex items-center text-gray-500">
             <MapPin className="w-4 h-4 mr-1" />
             {tender.region}
           </span>
-          <span className="flex items-center">
+          <span className={`flex items-center font-medium ${
+            isExpired ? 'text-red-600' : 'text-green-600'
+          }`}>
             <Calendar className="w-4 h-4 mr-1" />
             Deadline: {tender.deadline}
+            {isExpired && <span className="ml-2 text-red-500 font-bold">EXPIRED</span>}
           </span>
           <span className="font-semibold text-green-600">
             Bid Guarantee: {tender.budget}
@@ -174,10 +192,11 @@ const Tenders = () => {
         </div>
         <Button 
           size="sm" 
-          className="bg-blue-600 hover:bg-blue-700"
+          className={isExpired ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
           onClick={() => handleViewTenderDetails(tender)}
+          disabled={isExpired}
         >
-          View Details
+          {isExpired ? "Expired" : "View Details"}
         </Button>
       </div>
     );
@@ -320,7 +339,14 @@ const Tenders = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Deadline
                   </label>
-                  <p className="text-red-600 font-medium">{selectedTender.deadline}</p>
+                  <p className={`font-medium ${
+                    isTenderExpired(selectedTender.deadline) ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {selectedTender.deadline}
+                    {isTenderExpired(selectedTender.deadline) && 
+                      <span className="ml-2 text-red-500 font-bold">EXPIRED</span>
+                    }
+                  </p>
                 </div>
               </div>
               
