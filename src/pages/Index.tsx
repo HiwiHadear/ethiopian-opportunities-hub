@@ -11,6 +11,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      {/* Sliding Banner */}
+      <div className="bg-red-600 text-white py-2 overflow-hidden">
+        <div className="animate-[slide_20s_linear_infinite] whitespace-nowrap">
+          <span className="inline-block px-8">
+            Mr Habari Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities • 
+            ኣቶ ሓባሪ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
+          </span>
+          <span className="inline-block px-8">
+            Mr Habari Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities • 
+            ኣቶ ሓባሪ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
+          </span>
+        </div>
+      </div>
+      
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
