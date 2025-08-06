@@ -3,21 +3,27 @@ import { Globe } from 'lucide-react';
 
 const GoogleTranslate = () => {
   useEffect(() => {
-    // Ensure the Google Translate widget is initialized when component mounts
-    const addGoogleTranslateScript = () => {
-      if (window.google && window.google.translate) {
-        window.googleTranslateElementInit();
+    const initializeGoogleTranslate = () => {
+      if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+        new window.google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,am,ti,om',
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          multilanguagePage: true,
+          gaTrack: true,
+          gaId: 'GA_TRACKING_ID'
+        }, 'google_translate_element');
       }
     };
 
     // Check if script is already loaded
-    if (window.google && window.google.translate) {
-      addGoogleTranslateScript();
+    if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+      initializeGoogleTranslate();
     } else {
       // Wait for script to load
       const checkForGoogleTranslate = setInterval(() => {
-        if (window.google && window.google.translate) {
-          addGoogleTranslateScript();
+        if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+          initializeGoogleTranslate();
           clearInterval(checkForGoogleTranslate);
         }
       }, 100);
