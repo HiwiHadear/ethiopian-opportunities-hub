@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Users, FileText, Briefcase, TrendingUp, Shield, LogIn, LogOut, GraduationCap, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import ContactDialog from "@/components/ContactDialog";
+import GoogleTranslate from "@/components/GoogleTranslate";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -37,6 +38,7 @@ const Index = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              <GoogleTranslate />
               {user ? (
                 <>
                   <span className="text-sm text-gray-600">Welcome, {user.email}</span>
