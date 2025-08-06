@@ -246,7 +246,7 @@ const Index = () => {
                     </svg>
                   </a>
                   <a 
-                    href="https://wa.me/251911234567" 
+                    href="https://wa.me/251911599042" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"

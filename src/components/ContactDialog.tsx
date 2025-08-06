@@ -69,12 +69,8 @@ const ContactDialog = ({ children }: ContactDialogProps) => {
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 text-sm">
             <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-primary" />
-              <span>info@tenderjob.et</span>
-            </div>
-            <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primary" />
-              <span>+251 11 123 4567</span>
+              <span>+251911599042</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-primary" />
