@@ -413,9 +413,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_first_admin: {
+        Args: { admin_email: string }
+        Returns: undefined
+      }
+      demote_admin_to_user: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      promote_user_to_admin: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
