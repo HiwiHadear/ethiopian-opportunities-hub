@@ -32,7 +32,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <img 
-                src="/logo.png" 
+                src="/lovable-uploads/97668968-be8c-46da-9a30-474d55e56669.png" 
                 alt="Habari Tender & Job Portal" 
                 className="h-10 w-auto"
               />
@@ -197,7 +197,7 @@ const Index = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <img 
-                  src="/logo.png" 
+                  src="/lovable-uploads/97668968-be8c-46da-9a30-474d55e56669.png" 
                   alt="Habari Tender & Job Portal" 
                   className="h-8 w-auto"
                 />
