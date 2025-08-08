@@ -24,22 +24,23 @@ export default defineConfig(({ mode }) => ({
         process.env.NODE_ENV === 'production' ? '/ethiopian-opportunities-hub/' : '/',
   
   build: {
-    // Optimize for cPanel hosting
+    // Optimize for deployment
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'esbuild', // Use esbuild instead of terser for faster builds
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           supabase: ['@supabase/supabase-js'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          ml: ['@huggingface/transformers'] // Separate ML libraries
         }
       }
     },
-    // Ensure compatibility with older browsers
-    target: 'es2015'
+    // ES2020 for BigInt support (required by @huggingface/transformers)
+    target: 'es2020'
   },
   
   // Preview server configuration for testing

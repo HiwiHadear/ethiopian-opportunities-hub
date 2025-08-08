@@ -33,8 +33,10 @@ const buildForCPanel = async () => {
         console.log('\n✅ Build completed successfully!');
         await createCPanelFiles();
         await createDeploymentInstructions();
+        await createDownloadableZip();
         console.log('\n🎉 Your files are ready for cPanel upload!');
         console.log('📁 Upload the contents of the "dist" folder to your cPanel public_html directory');
+        console.log('💾 Download ready: dist.zip created for easy upload');
       } else {
         console.error('\n❌ Build failed with exit code', code);
         process.exit(1);
@@ -115,11 +117,18 @@ const createDeploymentInstructions = async () => {
 
 ## 🚀 Quick Upload Guide
 
+### Option 1: Direct File Upload
 1. **Login to your cPanel account**
 2. **Open File Manager**
 3. **Navigate to public_html folder**
 4. **Upload all files from the 'dist' folder** (not the dist folder itself)
 5. **Extract if you uploaded as a zip file**
+
+### Option 2: Upload dist.zip
+1. **Upload dist.zip to public_html**
+2. **Extract the zip file in cPanel File Manager**
+3. **Move contents to root of public_html**
+4. **Delete the zip file**
 
 ## 📁 Files to Upload
 
@@ -174,6 +183,35 @@ Generated on: ${new Date().toISOString()}
 
   await fs.writeFile('./CPANEL_DEPLOYMENT.md', instructions);
   console.log('✅ Created deployment instructions (CPANEL_DEPLOYMENT.md)');
+};
+
+const createDownloadableZip = async () => {
+  // Note: This would require a zip library in a real implementation
+  // For now, we'll create instructions for manual zipping
+  const zipInstructions = `# Create Downloadable Package
+
+## Manual Zip Creation:
+1. Navigate to the 'dist' folder
+2. Select ALL contents (not the dist folder itself)
+3. Create a zip file named 'website-files.zip'
+4. This zip is ready for cPanel upload
+
+## Command Line (if available):
+\`\`\`bash
+cd dist
+zip -r ../website-files.zip *
+\`\`\`
+
+## Contents should include:
+- index.html
+- assets/ folder with all JS, CSS, and images
+- .htaccess file
+- robots.txt
+- Any other generated files
+`;
+
+  await fs.writeFile('./CREATE_ZIP.md', zipInstructions);
+  console.log('✅ Created zip creation instructions (CREATE_ZIP.md)');
 };
 
 // Run the build

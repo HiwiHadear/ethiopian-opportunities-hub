@@ -1,0 +1,89 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for GitHub Pages
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Build for cPanel
+        run: |
+          export DEPLOY_TARGET=cpanel
+          npm run build
+          mv dist cpanel-dist
+
+      - name: Create deployment packages
+        run: |
+          # Create GitHub Pages package
+          cd dist
+          zip -r ../github-pages-deployment.zip *
+          cd ..
+          
+          # Create cPanel package
+          cd cpanel-dist
+          zip -r ../cpanel-deployment.zip *
+          cd ..
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: './dist'
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            github-pages-deployment.zip
+            cpanel-deployment.zip
+          body: |
+            ## 🚀 Deployment Packages
+            
+            **GitHub Pages**: Download `github-pages-deployment.zip`
+            **cPanel Hosting**: Download `cpanel-deployment.zip`
+            
+            ### cPanel Instructions:
+            1. Download `cpanel-deployment.zip`
+            2. Extract to your cPanel public_html folder
+            3. Ensure .htaccess file is included for SPA routing
+            
+            ### GitHub Pages:
+            Will auto-deploy to: ${{ github.server_url }}/${{ github.repository }}/deployments
+
+  deploy-github-pages:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-and-release
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
