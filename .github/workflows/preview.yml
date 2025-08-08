@@ -1,0 +1,74 @@
+name: Preview Deployment
+
+on:
+  # Trigger on pull requests to preview changes
+  pull_request:
+    branches: [ "main" ]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build preview
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_SUPABASE_URL: https://qzjfbqirbxsqdwcbpsst.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6amZicWlyYnhzcWR3Y2Jwc3N0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MjU5MjAsImV4cCI6MjA2NjAwMTkyMH0.JAHqjJEWxTApCs2AHAAOpH7_-HUPWU0GmLt2UgXht9w
+
+      - name: Deploy to Netlify (Preview)
+        id: netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './dist'
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from PR #${{ github.event.number }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: false
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 10
+
+      - name: Comment PR with preview link
+        if: steps.netlify.outputs.deploy-url != ''
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const deployUrl = '${{ steps.netlify.outputs.deploy-url }}';
+            const comment = `## 🔍 Preview Deployment
+            
+            Your changes have been deployed to a preview environment:
+            
+            📱 **Preview URL**: ${deployUrl}
+            
+            You can test your changes before merging to main.
+            
+            ---
+            *This preview will be automatically updated when you push new commits to this PR.*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            })

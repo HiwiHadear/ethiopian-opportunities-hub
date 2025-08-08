@@ -1,10 +1,18 @@
-name: Build and Release
+name: Create Release
 
 on:
+  # Trigger on version tags
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
+  
+  # Allow manual release creation
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
 
 permissions:
   contents: write
@@ -12,7 +20,7 @@ permissions:
   id-token: write
 
 jobs:
-  build-and-release:
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,59 +39,70 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          VITE_SUPABASE_URL: https://qzjfbqirbxsqdwcbpsst.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6amZicWlyYnhzcWR3Y2Jwc3N0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MjU5MjAsImV4cCI6MjA2NjAwMTkyMH0.JAHqjJEWxTApCs2AHAAOpH7_-HUPWU0GmLt2UgXht9w
+
+      - name: Create GitHub Pages package
+        run: |
+          cd dist
+          zip -r ../github-pages-${{ github.ref_name }}.zip .
+          cd ..
 
       - name: Build for cPanel
         run: |
           export DEPLOY_TARGET=cpanel
           npm run build
-          mv dist cpanel-dist
-
-      - name: Create deployment packages
-        run: |
-          # Create GitHub Pages package
           cd dist
-          zip -r ../github-pages-deployment.zip *
-          cd ..
-          
-          # Create cPanel package
-          cd cpanel-dist
-          zip -r ../cpanel-deployment.zip *
+          zip -r ../cpanel-hosting-${{ github.ref_name }}.zip .
           cd ..
 
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: './dist'
+      - name: Generate changelog
+        run: |
+          echo "# Release Notes for ${{ github.ref_name }}" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "## 🚀 Deployment Packages" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### GitHub Pages Deployment" >> RELEASE_NOTES.md
+          echo "- Download: \`github-pages-${{ github.ref_name }}.zip\`" >> RELEASE_NOTES.md
+          echo "- Auto-deploys to: ${{ github.server_url }}/${{ github.repository }}/deployments" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### cPanel Hosting" >> RELEASE_NOTES.md
+          echo "- Download: \`cpanel-hosting-${{ github.ref_name }}.zip\`" >> RELEASE_NOTES.md
+          echo "- Extract to your public_html folder" >> RELEASE_NOTES.md
+          echo "- Includes .htaccess for SPA routing" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "## 📋 Installation Instructions" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### For cPanel:" >> RELEASE_NOTES.md
+          echo "1. Download \`cpanel-hosting-${{ github.ref_name }}.zip\`" >> RELEASE_NOTES.md
+          echo "2. Login to cPanel File Manager" >> RELEASE_NOTES.md
+          echo "3. Navigate to public_html" >> RELEASE_NOTES.md
+          echo "4. Upload and extract the zip file" >> RELEASE_NOTES.md
+          echo "5. Ensure .htaccess file is present" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### Features in this release:" >> RELEASE_NOTES.md
+          echo "- ✅ Optimized build with ES2020 support" >> RELEASE_NOTES.md
+          echo "- ✅ Supabase backend integration" >> RELEASE_NOTES.md
+          echo "- ✅ Responsive design with Tailwind CSS" >> RELEASE_NOTES.md
+          echo "- ✅ React Router for navigation" >> RELEASE_NOTES.md
+          echo "- ✅ SEO optimized" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "Generated on: $(date)" >> RELEASE_NOTES.md
 
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            github-pages-deployment.zip
-            cpanel-deployment.zip
-          body: |
-            ## 🚀 Deployment Packages
-            
-            **GitHub Pages**: Download `github-pages-deployment.zip`
-            **cPanel Hosting**: Download `cpanel-deployment.zip`
-            
-            ### cPanel Instructions:
-            1. Download `cpanel-deployment.zip`
-            2. Extract to your cPanel public_html folder
-            3. Ensure .htaccess file is included for SPA routing
-            
-            ### GitHub Pages:
-            Will auto-deploy to: ${{ github.server_url }}/${{ github.repository }}/deployments
+            github-pages-${{ github.ref_name }}.zip
+            cpanel-hosting-${{ github.ref_name }}.zip
+          body_path: RELEASE_NOTES.md
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
 
-  deploy-github-pages:
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build-and-release
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
