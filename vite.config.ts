@@ -19,5 +19,32 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: process.env.NODE_ENV === 'production' ? '/ethiopian-opportunities-hub/' : '/',
+  // Base path configuration for different deployment targets
+  base: process.env.DEPLOY_TARGET === 'cpanel' ? '/' : 
+        process.env.NODE_ENV === 'production' ? '/ethiopian-opportunities-hub/' : '/',
+  
+  build: {
+    // Optimize for cPanel hosting
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+        }
+      }
+    },
+    // Ensure compatibility with older browsers
+    target: 'es2015'
+  },
+  
+  // Preview server configuration for testing
+  preview: {
+    port: 4173,
+    host: true
+  }
 }));
