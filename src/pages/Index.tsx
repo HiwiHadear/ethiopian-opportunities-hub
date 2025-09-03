@@ -32,8 +32,8 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/97668968-be8c-46da-9a30-474d55e56669.png" 
-                alt="Habari Tender & Job Portal" 
+                src="/lovable-uploads/23240541-7e04-4be8-b8d4-6292b1c14805.png" 
+                alt="Geza Shekalo Premier Tender & Job Portal" 
                 className="h-10 w-auto"
               />
             </div>
@@ -197,8 +197,8 @@ const Index = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <img 
-                  src="/lovable-uploads/97668968-be8c-46da-9a30-474d55e56669.png" 
-                  alt="Habari Tender & Job Portal" 
+                  src="/lovable-uploads/23240541-7e04-4be8-b8d4-6292b1c14805.png" 
+                  alt="Geza Shekalo Premier Tender & Job Portal" 
                   className="h-8 w-auto"
                 />
               </div>
