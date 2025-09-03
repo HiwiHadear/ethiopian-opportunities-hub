@@ -13,13 +13,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Sliding Banner */}
-      <div className="bg-red-600 text-white py-2 overflow-hidden">
+      <div className="bg-red-600 text-white py-3 overflow-hidden">
         <div className="animate-[slide_20s_linear_infinite] whitespace-nowrap">
-          <span className="inline-block px-8">
+          <span className="inline-block px-8 text-lg font-medium">
             Mr Habari Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities • 
             ኣቶ ሓባሪ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
           </span>
-          <span className="inline-block px-8">
+          <span className="inline-block px-8 text-lg font-medium">
             Mr Habari Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities • 
             ኣቶ ሓባሪ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
           </span>
@@ -42,16 +42,16 @@ const Index = () => {
               <GoogleTranslate />
               {user ? (
                 <>
-                  <span className="text-sm text-gray-600">Welcome, {user.email}</span>
-                  <Button variant="outline" size="sm" onClick={signOut}>
-                    <LogOut className="w-4 h-4 mr-2" />
+                  <span className="text-base text-gray-600 font-medium">Welcome, {user.email}</span>
+                  <Button variant="outline" size="default" onClick={signOut}>
+                    <LogOut className="w-5 h-5 mr-2" />
                     Sign Out
                   </Button>
                 </>
               ) : (
                 <Link to="/auth">
-                  <Button variant="outline" size="sm">
-                    <LogIn className="w-4 h-4 mr-2" />
+                  <Button variant="outline" size="default">
+                    <LogIn className="w-5 h-5 mr-2" />
                     Sign In
                   </Button>
                 </Link>
@@ -64,11 +64,11 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-8">
             Ethiopia's Premier
             <span className="text-red-600"> Tender & Job</span> Portal
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
             Connecting businesses with government tenders and talented professionals with career opportunities across Ethiopia.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -99,20 +99,20 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-red-600 mb-2">500+</div>
-              <div className="text-gray-600">Active Tenders</div>
+              <div className="text-5xl font-bold text-red-600 mb-3">500+</div>
+              <div className="text-lg text-gray-600 font-medium">Active Tenders</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-2">1,200+</div>
-              <div className="text-gray-600">Job Opportunities</div>
+              <div className="text-5xl font-bold text-blue-600 mb-3">1,200+</div>
+              <div className="text-lg text-gray-600 font-medium">Job Opportunities</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">300+</div>
-              <div className="text-gray-600">Registered Companies</div>
+              <div className="text-5xl font-bold text-green-600 mb-3">300+</div>
+              <div className="text-lg text-gray-600 font-medium">Registered Companies</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">50,000+</div>
-              <div className="text-gray-600">Active Users</div>
+              <div className="text-5xl font-bold text-purple-600 mb-3">50,000+</div>
+              <div className="text-lg text-gray-600 font-medium">Active Users</div>
             </div>
           </div>
         </div>
@@ -122,10 +122,10 @@ const Index = () => {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
               Why Choose TenderJob Portal?
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               We provide the most comprehensive platform for tenders and jobs in Ethiopia
             </p>
           </div>
@@ -136,8 +136,8 @@ const Index = () => {
                 <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-6 h-6 text-red-600" />
                 </div>
-                <CardTitle>Government Tenders</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl font-bold">Government Tenders</CardTitle>
+                <CardDescription className="text-lg">
                   Access to verified government tenders from all ministries and agencies
                 </CardDescription>
               </CardHeader>
@@ -148,8 +148,8 @@ const Index = () => {
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Briefcase className="w-6 h-6 text-blue-600" />
                 </div>
-                <CardTitle>Quality Jobs</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl font-bold">Quality Jobs</CardTitle>
+                <CardDescription className="text-lg">
                   Curated job opportunities from top companies across various industries
                 </CardDescription>
               </CardHeader>
@@ -160,8 +160,8 @@ const Index = () => {
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="w-6 h-6 text-green-600" />
                 </div>
-                <CardTitle>Real-time Updates</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl font-bold">Real-time Updates</CardTitle>
+                <CardDescription className="text-lg">
                   Get instant notifications about new tenders and jobs that match your profile
                 </CardDescription>
               </CardHeader>
@@ -173,10 +173,10 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 bg-red-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-xl text-red-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-2xl text-red-100 mb-10 max-w-2xl mx-auto leading-relaxed">
             Join thousands of businesses and professionals who trust TenderJob Portal
           </p>
           {!user && (
@@ -202,14 +202,14 @@ const Index = () => {
                   className="h-8 w-auto"
                 />
               </div>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-lg">
                 Ethiopia's most trusted platform for tenders and jobs.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-gray-400">
+              <h3 className="font-semibold mb-4 text-lg">Quick Links</h3>
+              <ul className="space-y-3 text-gray-400 text-base">
                 <li><Link to="/tenders" className="hover:text-white">Browse Tenders</Link></li>
                 <li><Link to="/jobs" className="hover:text-white">Find Jobs</Link></li>
                 <li><Link to="/scholarships" className="hover:text-white">Scholarships</Link></li>
@@ -217,8 +217,8 @@ const Index = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">For Companies</h3>
-              <ul className="space-y-2 text-gray-400">
+              <h3 className="font-semibold mb-4 text-lg">For Companies</h3>
+              <ul className="space-y-3 text-gray-400 text-base">
                 <li><a href="#" className="hover:text-white">Post Tenders</a></li>
                 <li><a href="#" className="hover:text-white">Hire Talent</a></li>
                 <li><a href="#" className="hover:text-white">Company Profile</a></li>
@@ -226,8 +226,8 @@ const Index = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
+              <h3 className="font-semibold mb-4 text-lg">Support</h3>
+              <ul className="space-y-3 text-gray-400 text-base">
                 <li>
                   <ContactDialog>
                     <button className="hover:text-white transition-colors">Contact Us</button>
@@ -239,7 +239,7 @@ const Index = () => {
               
               {/* Social Media Icons */}
               <div className="mt-6">
-                <h4 className="font-semibold mb-3">Follow Us</h4>
+                <h4 className="font-semibold mb-3 text-lg">Follow Us</h4>
                 <div className="flex space-x-4">
                   <a 
                     href="https://t.me/tenderjobportal" 
@@ -280,7 +280,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 TenderJob Portal. All rights reserved.</p>
+            <p className="text-base">&copy; 2024 TenderJob Portal. All rights reserved.</p>
           </div>
         </div>
       </footer>
