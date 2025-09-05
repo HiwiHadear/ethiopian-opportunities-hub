@@ -32,7 +32,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/23240541-7e04-4be8-b8d4-6292b1c14805.png" 
+                src="/lovable-uploads/c6863b9a-31ae-4e2f-87a6-19b9386abbdf.png" 
                 alt="Geza Shekalo Premier Tender & Job Portal" 
                 className="h-10 w-auto"
               />
@@ -197,7 +197,7 @@ const Index = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <img 
-                  src="/lovable-uploads/23240541-7e04-4be8-b8d4-6292b1c14805.png" 
+                  src="/lovable-uploads/c6863b9a-31ae-4e2f-87a6-19b9386abbdf.png" 
                   alt="Geza Shekalo Premier Tender & Job Portal" 
                   className="h-8 w-auto"
                 />
