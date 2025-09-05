@@ -20,8 +20,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   // Base path configuration for different deployment targets
-  base: process.env.DEPLOY_TARGET === 'cpanel' ? '/' : 
-        process.env.NODE_ENV === 'production' ? '/ethiopian-opportunities-hub/' : '/',
+  base: process.env.DEPLOY_TARGET === 'cpanel' ? '/' : '/',
   
   build: {
     // Optimize for deployment
