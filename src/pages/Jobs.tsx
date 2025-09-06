@@ -357,7 +357,12 @@ const Jobs = () => {
 
             <div className="flex items-center space-x-4">
               {user && isAdmin && (
-                <PostJobDialog onSubmit={handleAddJob} />
+                <>
+                  <PostJobDialog onSubmit={handleAddJob} />
+                  <Link to="/admin">
+                    <Button variant="secondary" size="sm">Admin Dashboard</Button>
+                  </Link>
+                </>
               )}
               {!user ? (
                 <Link to="/auth">

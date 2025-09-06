@@ -225,7 +225,12 @@ const Tenders = () => {
 
             <div className="flex items-center space-x-4">
               {user && isAdmin && (
-                <PostTenderDialog onSubmit={handleAddTender} />
+                <>
+                  <PostTenderDialog onSubmit={handleAddTender} />
+                  <Link to="/admin">
+                    <Button variant="secondary" size="sm">Admin Dashboard</Button>
+                  </Link>
+                </>
               )}
               {!user ? (
                 <Link to="/auth">

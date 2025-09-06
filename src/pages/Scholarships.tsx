@@ -19,11 +19,14 @@ import {
   Award
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PostScholarshipDialog } from "@/components/PostScholarshipDialog";
 
 const Scholarships = () => {
   const { user } = useAuth();
+  const { isAdmin } = useProfile();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
@@ -66,6 +69,14 @@ const Scholarships = () => {
 
   const handleApplyToScholarship = (scholarship: any) => {
     setSelectedScholarship(scholarship);
+  };
+
+  const handleAddScholarship = (newScholarship: any) => {
+    setScholarships(prev => [newScholarship, ...prev]);
+    toast({
+      title: "Scholarship Created",
+      description: "New scholarship has been created successfully.",
+    });
   };
 
   const ScholarshipCard = ({ scholarship }: { scholarship: any }) => (
@@ -258,16 +269,36 @@ const Scholarships = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/">
-              <Button variant="ghost" className="flex items-center">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
-            <h1 className="text-xl font-semibold">Scholarship Opportunities</h1>
-            <div></div>
-          </div>
+            <div className="flex items-center justify-between h-16">
+              <Link to="/">
+                <Button variant="ghost" className="flex items-center">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Home
+                </Button>
+              </Link>
+              <h1 className="text-xl font-semibold">Scholarship Opportunities</h1>
+              <div className="flex items-center space-x-4">
+                {user && isAdmin && (
+                  <>
+                    <PostScholarshipDialog onScholarshipCreated={fetchScholarships}>
+                      <Button variant="secondary" size="sm">Create New Scholarship</Button>
+                    </PostScholarshipDialog>
+                    <Link to="/admin">
+                      <Button variant="secondary" size="sm">Admin Dashboard</Button>
+                    </Link>
+                  </>
+                )}
+                {!user ? (
+                  <Link to="/auth">
+                    <Button>Sign In</Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" onClick={() => supabase.auth.signOut()}>
+                    Sign Out
+                  </Button>
+                )}
+              </div>
+            </div>
         </div>
       </header>
 
