@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import PostTenderDialog from '@/components/PostTenderDialog';
 
 const TenderManagement = () => {
   const { toast } = useToast();
@@ -96,10 +97,29 @@ const TenderManagement = () => {
     }
   };
 
+  const handleNewTender = (tenderData) => {
+    const newTender = {
+      id: Math.max(...tenders.map(t => t.id)) + 1,
+      ...tenderData,
+      budget: tenderData.bid_guarantee,
+      status: "pending",
+      postedBy: "admin"
+    };
+    
+    setTenders(prev => [newTender, ...prev]);
+    toast({
+      title: "Tender Created",
+      description: "New tender has been created successfully.",
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tender Management</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Tender Management</CardTitle>
+          <PostTenderDialog onSubmit={handleNewTender} />
+        </div>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import PostJobDialog from '@/components/PostJobDialog';
 
 const JobManagement = () => {
   const { toast } = useToast();
@@ -96,10 +97,29 @@ const JobManagement = () => {
     }
   };
 
+  const handleNewJob = (jobData) => {
+    const newJob = {
+      id: Math.max(...jobs.map(j => j.id)) + 1,
+      ...jobData,
+      posted: "Just now",
+      status: "pending",
+      postedBy: "admin"
+    };
+    
+    setJobs(prev => [newJob, ...prev]);
+    toast({
+      title: "Job Created",
+      description: "New job posting has been created successfully.",
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Job Management</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Job Management</CardTitle>
+          <PostJobDialog onSubmit={handleNewJob} />
+        </div>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
