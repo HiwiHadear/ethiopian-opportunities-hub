@@ -30,12 +30,16 @@ const Index = () => {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <img 
                 src="/lovable-uploads/c6863b9a-31ae-4e2f-87a6-19b9386abbdf.png" 
                 alt="Geza Shekalo Premier Tender & Job Portal" 
                 className="h-10 w-auto"
               />
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900">ገዛ ሸቃሎ</span>
+                <span className="text-sm font-semibold text-gray-700">Geza Shekalo</span>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
