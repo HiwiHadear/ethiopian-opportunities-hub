@@ -31,7 +31,224 @@ const Scholarships = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
   const [selectedScholarship, setSelectedScholarship] = useState<any>(null);
-  const [scholarships, setScholarships] = useState<any[]>([]);
+  const [scholarships, setScholarships] = useState<any[]>([
+    {
+      id: 1,
+      title: "Ethiopian Government Scholarship Program",
+      organization: "Ministry of Education, Ethiopia",
+      field: "Engineering & Technology",
+      level: "masters",
+      amount: "Full Tuition + Living Allowance",
+      location: "Addis Ababa University, Ethiopia",
+      deadline: "2024-12-31",
+      description: "Comprehensive scholarship program for Ethiopian students pursuing Master's degrees in Engineering and Technology fields. Covers full tuition, accommodation, and monthly stipend.",
+      requirements: [
+        "Ethiopian citizenship required",
+        "Bachelor's degree with minimum GPA of 3.5",
+        "IELTS score of 6.5 or equivalent",
+        "2+ years of relevant work experience",
+        "Letter of recommendation from employer"
+      ],
+      benefits: [
+        "Full tuition coverage",
+        "Monthly living allowance of $800",
+        "Free accommodation",
+        "Health insurance coverage",
+        "Research funding support"
+      ],
+      application_url: "https://moe.gov.et/scholarships",
+      status: "approved"
+    },
+    {
+      id: 2,
+      title: "African Union Scholarship for Women in STEM",
+      organization: "African Union Commission",
+      field: "Science, Technology, Engineering & Mathematics",
+      level: "undergraduate",
+      amount: "$15,000 per year",
+      location: "Various African Universities",
+      deadline: "2024-11-15",
+      description: "Empowering young African women to pursue careers in STEM fields. This scholarship supports undergraduate studies in science, technology, engineering, and mathematics.",
+      requirements: [
+        "Female applicant from Africa",
+        "High school diploma with excellent grades",
+        "Demonstrated interest in STEM fields",
+        "Age between 18-25 years",
+        "English proficiency certificate"
+      ],
+      benefits: [
+        "Annual scholarship of $15,000",
+        "Mentorship program access",
+        "Internship opportunities",
+        "Professional development workshops",
+        "Networking with STEM professionals"
+      ],
+      application_url: "https://au.int/scholarships",
+      status: "approved"
+    },
+    {
+      id: 3,
+      title: "Mastercard Foundation Scholars Program",
+      organization: "Mastercard Foundation",
+      field: "Various Fields",
+      level: "undergraduate",
+      amount: "Full Scholarship + Support",
+      location: "Leading African Universities",
+      deadline: "2024-10-30",
+      description: "Comprehensive scholarship program for academically talented yet economically disadvantaged young people from Africa, with a focus on young women.",
+      requirements: [
+        "African citizenship",
+        "Demonstrated academic excellence",
+        "Financial need",
+        "Leadership potential",
+        "Community service involvement"
+      ],
+      benefits: [
+        "Full tuition and fees",
+        "Accommodation and meals",
+        "Academic support services",
+        "Leadership development programs",
+        "Career guidance and mentorship"
+      ],
+      application_url: "https://mastercardfdn.org/scholars",
+      status: "approved"
+    },
+    {
+      id: 4,
+      title: "German Academic Exchange Service (DAAD) Scholarship",
+      organization: "DAAD Germany",
+      field: "Engineering, Agriculture, Natural Sciences",
+      level: "masters",
+      amount: "€850-1,200 per month",
+      location: "German Universities",
+      deadline: "2024-09-30",
+      description: "Study opportunities in Germany for international students from developing countries, with focus on sustainable development and innovation.",
+      requirements: [
+        "Bachelor's degree in relevant field",
+        "Minimum 2 years work experience",
+        "German or English language proficiency",
+        "Strong academic record",
+        "Development-oriented career goals"
+      ],
+      benefits: [
+        "Monthly stipend €850-1,200",
+        "Health insurance coverage",
+        "Travel allowance",
+        "Study and research allowance",
+        "German language course"
+      ],
+      application_url: "https://daad.de/scholarships",
+      status: "approved"
+    },
+    {
+      id: 5,
+      title: "World Bank Graduate Scholarship Program",
+      organization: "World Bank Group",
+      field: "Development Studies, Economics, Public Policy",
+      level: "masters",
+      amount: "Full Tuition + Expenses",
+      location: "Partner Universities Worldwide",
+      deadline: "2024-11-30",
+      description: "Comprehensive scholarship for citizens of World Bank member countries to pursue master's degrees in development-related fields.",
+      requirements: [
+        "Citizenship of World Bank member country",
+        "Bachelor's degree with strong academic record",
+        "3+ years of development-related experience",
+        "English proficiency (TOEFL/IELTS)",
+        "Commitment to return to home country"
+      ],
+      benefits: [
+        "Full tuition and fees",
+        "Monthly living stipend",
+        "Round-trip airfare",
+        "Health insurance",
+        "Annual book allowance"
+      ],
+      application_url: "https://worldbank.org/scholarships",
+      status: "approved"
+    },
+    {
+      id: 6,
+      title: "Ethiopian Airlines Aviation Academy Scholarship",
+      organization: "Ethiopian Airlines",
+      field: "Aviation & Aerospace",
+      level: "undergraduate",
+      amount: "Full Sponsorship",
+      location: "Ethiopian Aviation Academy",
+      deadline: "2024-08-15",
+      description: "Comprehensive aviation training program for aspiring pilots and aviation professionals. Includes theoretical and practical training with guaranteed employment upon completion.",
+      requirements: [
+        "Ethiopian citizenship",
+        "Age between 18-28 years",
+        "High school completion with science subjects",
+        "Medical fitness for aviation",
+        "English proficiency"
+      ],
+      benefits: [
+        "Complete pilot training program",
+        "Guaranteed employment with Ethiopian Airlines",
+        "Competitive salary upon graduation",
+        "International career opportunities",
+        "Professional development support"
+      ],
+      application_url: "https://ethiopianairlines.com/careers",
+      status: "approved"
+    },
+    {
+      id: 7,
+      title: "USAID Higher Education Scholarship",
+      organization: "USAID Ethiopia",
+      field: "Public Health, Agriculture, Education",
+      level: "masters",
+      amount: "$25,000 per year",
+      location: "US Universities",
+      deadline: "2024-12-15",
+      description: "Scholarship program supporting Ethiopian professionals in critical development sectors to pursue advanced degrees in the United States.",
+      requirements: [
+        "Ethiopian citizenship",
+        "Bachelor's degree in relevant field",
+        "5+ years of professional experience",
+        "TOEFL iBT 80+ or IELTS 6.5+",
+        "Commitment to development work in Ethiopia"
+      ],
+      benefits: [
+        "Full tuition coverage",
+        "Monthly living allowance",
+        "Health insurance",
+        "Professional development opportunities",
+        "Networking with development professionals"
+      ],
+      application_url: "https://usaid.gov/ethiopia/scholarships",
+      status: "approved"
+    },
+    {
+      id: 8,
+      title: "Islamic Development Bank Scholarship",
+      organization: "Islamic Development Bank",
+      field: "Medicine, Engineering, Agriculture",
+      level: "phd",
+      amount: "Full Scholarship Package",
+      location: "Top Universities in Member Countries",
+      deadline: "2024-10-01",
+      description: "Merit-based scholarship program for outstanding students from IDB member countries to pursue PhD studies in priority fields for Islamic world development.",
+      requirements: [
+        "Citizenship of IDB member country",
+        "Master's degree with distinction",
+        "Research proposal in priority field",
+        "Language proficiency certificate",
+        "Age limit: 35 years for PhD"
+      ],
+      benefits: [
+        "Full tuition and fees coverage",
+        "Monthly living allowance",
+        "Annual book allowance",
+        "Health insurance",
+        "Conference participation funding"
+      ],
+      application_url: "https://isdb.org/scholarships",
+      status: "approved"
+    }
+  ]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
