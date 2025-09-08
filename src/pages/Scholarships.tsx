@@ -252,7 +252,8 @@ const Scholarships = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchScholarships();
+    // Using sample data for now instead of fetching from database
+    setLoading(false);
   }, []);
 
   const fetchScholarships = async () => {
@@ -497,7 +498,7 @@ const Scholarships = () => {
               <div className="flex items-center space-x-4">
                 {user && isAdmin && (
                   <>
-                    <PostScholarshipDialog onScholarshipCreated={fetchScholarships}>
+                    <PostScholarshipDialog onScholarshipCreated={() => {}}>
                       <Button variant="secondary" size="sm">Create New Scholarship</Button>
                     </PostScholarshipDialog>
                     <Link to="/admin">
