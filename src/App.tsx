@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Tenders from "./pages/Tenders";
@@ -33,8 +33,9 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/tenders" element={<Tenders />} />
               <Route path="/jobs" element={<Jobs />} />
-              <Route path="/scholarships" element={<Scholarships />} />
-              <Route path="/companies" element={<Companies />} />
+               <Route path="/scholarships" element={<Scholarships />} />
+               <Route path="/library" element={<Navigate to="/scholarships" replace />} />
+               <Route path="/companies" element={<Companies />} />
               <Route 
                 path="/admin" 
                 element={
