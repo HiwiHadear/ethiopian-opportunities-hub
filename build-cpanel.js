@@ -105,7 +105,7 @@ RewriteRule . /index.html [L]
   const robotsContent = `User-agent: *
 Allow: /
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://gezashekalo.rundagbusiness.com/sitemap.xml
 `;
 
   await fs.writeFile(path.join(distPath, 'robots.txt'), robotsContent);
