@@ -425,6 +425,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      is_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       promote_user_to_admin: {
         Args: { target_user_id: string }
         Returns: undefined
