@@ -16,12 +16,10 @@ const Index = () => {
       <div className="bg-red-600 text-white py-3 overflow-hidden">
         <div className="animate-[slide_20s_linear_infinite] whitespace-nowrap">
           <span className="inline-block px-8 text-lg font-medium">
-            Mr Habari Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities • 
-            ኣቶ ሓባሪ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
+            Geza Shekalo Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities ገዛ ሸቃሎ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
           </span>
           <span className="inline-block px-8 text-lg font-medium">
-            Mr Habari Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities • 
-            ኣቶ ሓባሪ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
+            Geza Shekalo Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities ገዛ ሸቃሎ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
           </span>
         </div>
       </div>
