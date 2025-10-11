@@ -156,10 +156,12 @@ const News = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Tag className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">TenderJob Portal</span>
+              <img 
+                src="/lovable-uploads/c6863b9a-31ae-4e2f-87a6-19b9386abbdf.png" 
+                alt="Geza Shekalo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-xl font-bold text-gray-900">Geza Shekalo</span>
             </div>
             
             <nav className="hidden md:flex space-x-8">

@@ -103,10 +103,12 @@ const Auth = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="mx-auto w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mb-4">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">TenderJob Portal</h1>
+          <img 
+            src="/lovable-uploads/c6863b9a-31ae-4e2f-87a6-19b9386abbdf.png" 
+            alt="Geza Shekalo" 
+            className="h-12 w-auto mx-auto mb-4"
+          />
+          <h1 className="text-2xl font-bold text-gray-900">Geza Shekalo</h1>
           <p className="text-gray-600">Sign in to your account or create a new one</p>
         </div>
 

@@ -127,7 +127,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Why Choose TenderJob Portal?
+              Why Choose Geza Shekalo?
             </h2>
             <p className="text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               We provide the most comprehensive platform for tenders and jobs in Ethiopia
@@ -181,7 +181,7 @@ const Index = () => {
             Ready to Get Started?
           </h2>
           <p className="text-2xl text-red-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of businesses and professionals who trust TenderJob Portal
+            Join thousands of businesses and professionals who trust Geza Shekalo
           </p>
           {!user && (
             <Link to="/auth">
@@ -246,7 +246,7 @@ const Index = () => {
                 <h4 className="font-semibold mb-3 text-lg">Follow Us</h4>
                 <div className="flex space-x-4">
                   <a 
-                    href="https://t.me/tenderjobportal" 
+                    href="https://t.me/gezashekalo" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
@@ -257,7 +257,7 @@ const Index = () => {
                     </svg>
                   </a>
                   <a 
-                    href="https://facebook.com/tenderjobportal" 
+                    href="https://facebook.com/gezashekalo" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
@@ -284,7 +284,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p className="text-base">&copy; 2024 TenderJob Portal. All rights reserved.</p>
+            <p className="text-base">&copy; 2025 Geza Shekalo. All rights reserved.</p>
           </div>
         </div>
       </footer>
