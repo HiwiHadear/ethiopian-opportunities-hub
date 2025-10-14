@@ -33,6 +33,7 @@ import { ScholarshipManagement } from '@/components/admin/ScholarshipManagement'
 import NotificationCenter from '@/components/admin/NotificationCenter';
 import JobApplicationManagement from '@/components/admin/JobApplicationManagement';
 import TenderApplicationManagement from '@/components/admin/TenderApplicationManagement';
+import AdminSettings from '@/components/admin/AdminSettings';
 
 // Navigation items for the sidebar
 const navigationItems = [
@@ -224,13 +225,7 @@ const AdminDashboard = () => {
           </div>
         );
       case 'settings':
-        return (
-          <div className="text-center py-12">
-            <Settings className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Settings</h3>
-            <p className="text-muted-foreground">Admin settings coming soon...</p>
-          </div>
-        );
+        return <AdminSettings />;
       default:
         return <DashboardOverview />;
     }
