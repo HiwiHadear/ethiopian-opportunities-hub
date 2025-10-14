@@ -37,10 +37,6 @@ const TenderApplicationManagement = () => {
             organization,
             sector,
             bid_guarantee
-          ),
-          profiles!tender_applications_user_id_fkey (
-            full_name,
-            email
           )
         `)
         .order('applied_at', { ascending: false });

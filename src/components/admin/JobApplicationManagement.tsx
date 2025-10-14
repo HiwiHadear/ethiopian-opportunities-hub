@@ -36,10 +36,6 @@ const JobApplicationManagement = () => {
             title,
             company,
             location
-          ),
-          profiles!job_applications_user_id_fkey (
-            full_name,
-            email
           )
         `)
         .order('applied_at', { ascending: false });
