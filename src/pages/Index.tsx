@@ -4,11 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, FileText, Briefcase, TrendingUp, Shield, LogIn, LogOut, GraduationCap, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import ContactDialog from "@/components/ContactDialog";
 import GoogleTranslate from "@/components/GoogleTranslate";
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -44,7 +46,9 @@ const Index = () => {
               <GoogleTranslate />
               {user ? (
                 <>
-                  <span className="text-base text-gray-600 font-medium">Welcome, {user.email}</span>
+                  <span className="text-base text-gray-600 font-medium">
+                    Welcome, {profile?.full_name || user.email?.split('@')[0]}
+                  </span>
                   <Button variant="outline" size="default" onClick={signOut}>
                     <LogOut className="w-5 h-5 mr-2" />
                     Sign Out

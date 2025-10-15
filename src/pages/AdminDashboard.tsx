@@ -1,9 +1,13 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Shield, Users, Briefcase, FileText, Bell, Building2, Settings, Search, 
   BarChart3, Plus, Home, ChevronDown, LogOut, User
 } from 'lucide-react';
+import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -49,6 +53,9 @@ const navigationItems = [
 ];
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { profile, role } = useProfile();
   const [activeView, setActiveView] = useState('dashboard');
   const [stats] = useState({
     totalTenders: 125,
@@ -58,6 +65,29 @@ const AdminDashboard = () => {
     registeredUsers: 234,
     activeScholarships: 67
   });
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      });
+      
+      navigate('/auth');
+    } catch (error: any) {
+      toast({
+        title: "Error logging out",
+        description: error.message || "An error occurred while logging out.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const displayName = profile?.full_name || profile?.email || 'Admin';
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
   const DashboardOverview = () => (
     <div className="space-y-6">
@@ -300,20 +330,30 @@ const AdminDashboard = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      <span>Admin</span>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium">{displayName}</span>
+                        <span className="text-xs text-muted-foreground">{roleLabel}</span>
+                      </div>
                       <ChevronDown className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5 text-sm">
+                      <p className="font-medium">{displayName}</p>
+                      <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                    </div>
+                    <DropdownMenuItem onClick={() => setActiveView('settings')}>
                       <User className="w-4 h-4 mr-2" />
-                      Profile
+                      Profile Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setActiveView('settings')}>
                       <Settings className="w-4 h-4 mr-2" />
-                      Settings
+                      Admin Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem 
+                      className="text-destructive focus:text-destructive"
+                      onClick={handleLogout}
+                    >
                       <LogOut className="w-4 h-4 mr-2" />
                       Logout
                     </DropdownMenuItem>
