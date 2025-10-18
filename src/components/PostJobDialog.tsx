@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Plus, AlertTriangle } from 'lucide-react';
@@ -22,6 +23,8 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
     location: '',
     salary: '',
     type: '',
+    description: '',
+    requirements: '',
     posted: 'Just now'
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -52,6 +55,8 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
         location: '',
         salary: '',
         type: '',
+        description: '',
+        requirements: '',
         posted: 'Just now'
       });
       setOpen(false);
@@ -80,7 +85,7 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
           Post Job
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Post New Job</DialogTitle>
         </DialogHeader>
@@ -93,10 +98,12 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
           )}
           <div>
             <Label htmlFor="title">Job Title</Label>
+            <p className="text-xs text-gray-500 mb-1">The position name (e.g., "Senior Software Engineer")</p>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="e.g., Senior Software Engineer"
               required
               className={errors.title ? 'border-red-500' : ''}
             />
@@ -104,22 +111,26 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
           </div>
           <div>
             <Label htmlFor="company">Company</Label>
+            <p className="text-xs text-gray-500 mb-1">The name of the hiring organization</p>
             <Input
               id="company"
               value={formData.company}
               onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+              placeholder="e.g., Ethiopian Airlines"
               required
               className={errors.company ? 'border-red-500' : ''}
             />
             {errors.company && <p className="text-sm text-red-500 mt-1">{errors.company}</p>}
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="location">Location</Label>
+              <p className="text-xs text-gray-500 mb-1">City or region</p>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="e.g., Addis Ababa"
                 required
                 className={errors.location ? 'border-red-500' : ''}
               />
@@ -127,6 +138,7 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
             </div>
             <div>
               <Label htmlFor="type">Job Type</Label>
+              <p className="text-xs text-gray-500 mb-1">Employment type</p>
               <Select onValueChange={(value) => setFormData({ ...formData, type: value })}>
                 <SelectTrigger className={errors.type ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Select type" />
@@ -143,6 +155,7 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
           </div>
           <div>
             <Label htmlFor="salary">Salary Range</Label>
+            <p className="text-xs text-gray-500 mb-1">Monthly compensation range in ETB</p>
             <Input
               id="salary"
               value={formData.salary}
@@ -153,6 +166,37 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
             />
             {errors.salary && <p className="text-sm text-red-500 mt-1">{errors.salary}</p>}
           </div>
+          
+          <div>
+            <Label htmlFor="description">Job Description</Label>
+            <p className="text-xs text-gray-500 mb-1">Overview of the role and responsibilities</p>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe what the job entails, key responsibilities, and what makes it interesting..."
+              rows={4}
+              required
+              className={errors.description ? 'border-red-500' : ''}
+            />
+            {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+          </div>
+          
+          <div>
+            <Label htmlFor="requirements">Requirements</Label>
+            <p className="text-xs text-gray-500 mb-1">Qualifications and skills needed</p>
+            <Textarea
+              id="requirements"
+              value={formData.requirements}
+              onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+              placeholder="List required education, experience, skills, and qualifications..."
+              rows={4}
+              required
+              className={errors.requirements ? 'border-red-500' : ''}
+            />
+            {errors.requirements && <p className="text-sm text-red-500 mt-1">{errors.requirements}</p>}
+          </div>
+          
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Post Job'}
           </Button>
