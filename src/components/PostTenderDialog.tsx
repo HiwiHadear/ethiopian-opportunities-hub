@@ -21,9 +21,12 @@ const PostTenderDialog = ({ onSubmit }: PostTenderDialogProps) => {
     title: '',
     organization: '',
     budget: '',
+    opening_date: '',
     deadline: '',
     sector: '',
-    region: ''
+    region: '',
+    description: '',
+    requirements: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,9 +53,12 @@ const PostTenderDialog = ({ onSubmit }: PostTenderDialogProps) => {
         title: '',
         organization: '',
         budget: '',
+        opening_date: '',
         deadline: '',
         sector: '',
-        region: ''
+        region: '',
+        description: '',
+        requirements: ''
       });
       setOpen(false);
     } catch (error) {
@@ -80,7 +86,7 @@ const PostTenderDialog = ({ onSubmit }: PostTenderDialogProps) => {
           Post Tender
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Post New Tender</DialogTitle>
         </DialogHeader>
@@ -127,17 +133,29 @@ const PostTenderDialog = ({ onSubmit }: PostTenderDialogProps) => {
               {errors.budget && <p className="text-sm text-red-500 mt-1">{errors.budget}</p>}
             </div>
             <div>
-              <Label htmlFor="deadline">Deadline</Label>
+              <Label htmlFor="opening_date">Opening Date</Label>
               <Input
-                id="deadline"
+                id="opening_date"
                 type="date"
-                value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                value={formData.opening_date}
+                onChange={(e) => setFormData({ ...formData, opening_date: e.target.value })}
                 required
-                className={errors.deadline ? 'border-red-500' : ''}
+                className={errors.opening_date ? 'border-red-500' : ''}
               />
-              {errors.deadline && <p className="text-sm text-red-500 mt-1">{errors.deadline}</p>}
+              {errors.opening_date && <p className="text-sm text-red-500 mt-1">{errors.opening_date}</p>}
             </div>
+          </div>
+          <div>
+            <Label htmlFor="deadline">Deadline</Label>
+            <Input
+              id="deadline"
+              type="date"
+              value={formData.deadline}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+              required
+              className={errors.deadline ? 'border-red-500' : ''}
+            />
+            {errors.deadline && <p className="text-sm text-red-500 mt-1">{errors.deadline}</p>}
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -172,6 +190,32 @@ const PostTenderDialog = ({ onSubmit }: PostTenderDialogProps) => {
               </Select>
               {errors.region && <p className="text-sm text-red-500 mt-1">{errors.region}</p>}
             </div>
+          </div>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <p className="text-sm text-muted-foreground mb-1">Provide detailed information about the tender</p>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Enter tender description, scope of work, objectives..."
+              className={errors.description ? 'border-red-500' : ''}
+              rows={4}
+            />
+            {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+          </div>
+          <div>
+            <Label htmlFor="requirements">Requirements</Label>
+            <p className="text-sm text-muted-foreground mb-1">List eligibility criteria and required qualifications</p>
+            <Textarea
+              id="requirements"
+              value={formData.requirements}
+              onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+              placeholder="Enter requirements, qualifications, documents needed..."
+              className={errors.requirements ? 'border-red-500' : ''}
+              rows={4}
+            />
+            {errors.requirements && <p className="text-sm text-red-500 mt-1">{errors.requirements}</p>}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Post Tender'}

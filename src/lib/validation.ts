@@ -37,6 +37,14 @@ export const tenderSchema = z.object({
     .min(1, 'Bid guarantee is required')
     .max(50, 'Bid guarantee must be less than 50 characters')
     .trim(),
+  opening_date: z.string()
+    .min(1, 'Opening date is required')
+    .refine((date) => {
+      const selected = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return selected >= today;
+    }, 'Opening date must be today or in the future'),
   deadline: z.string()
     .min(1, 'Deadline is required')
     .refine((date) => {
