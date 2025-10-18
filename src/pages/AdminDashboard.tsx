@@ -87,7 +87,7 @@ const AdminDashboard = () => {
   };
 
   const displayName = profile?.full_name || profile?.email || 'Admin';
-  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+  const roleLabel = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
 
   const DashboardOverview = () => (
     <div className="space-y-6">
