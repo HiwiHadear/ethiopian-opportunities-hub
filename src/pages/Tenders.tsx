@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Calendar, FileText, Edit, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,77 +12,101 @@ import PostTenderDialog from '@/components/PostTenderDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const Tenders = () => {
   const { user } = useAuth();
   const { isAdmin } = useProfile();
-  const [tenders, setTenders] = useState([
-    {
-      id: 1,
-      title: "Construction of New Government Office Building",
-      organization: "Ministry of Urban Development",
-      budget: "50,000,000 ETB",
-      deadline: "2024-07-15",
-      sector: "Construction",
-      region: "Addis Ababa"
-    },
-    {
-      id: 2,
-      title: "IT Infrastructure Development Project",
-      organization: "Ethiopian Electric Utility",
-      budget: "25,000,000 ETB",
-      deadline: "2024-07-20",
-      sector: "IT",
-      region: "Dire Dawa"
-    },
-    {
-      id: 3,
-      title: "Agricultural Equipment Supply",
-      organization: "Ministry of Agriculture",
-      budget: "15,000,000 ETB",
-      deadline: "2024-07-25",
-      sector: "Agriculture",
-      region: "Hawassa"
-    },
-    {
-      id: 4,
-      title: "Road Construction Project",
-      organization: "Ethiopian Roads Authority",
-      budget: "80,000,000 ETB",
-      deadline: "2024-08-01",
-      sector: "Construction",
-      region: "Bahir Dar"
-    },
-    {
-      id: 5,
-      title: "Hospital Equipment Procurement",
-      organization: "Ministry of Health",
-      budget: "30,000,000 ETB",
-      deadline: "2024-07-30",
-      sector: "Healthcare",
-      region: "Mekelle"
-    }
-  ]);
+  const [tenders, setTenders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [editingTender, setEditingTender] = useState(null);
   const [selectedTender, setSelectedTender] = useState(null);
   const [tenderDetailsOpen, setTenderDetailsOpen] = useState(false);
 
+  // Fetch tenders from Supabase
+  const fetchTenders = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('tenders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTenders(data || []);
+    } catch (error) {
+      console.error('Error fetching tenders:', error);
+      toast.error('Failed to load tenders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTenders();
+  }, []);
+
   const handleEditTender = (tenderId) => {
     setEditingTender(tenderId);
   };
 
-  const handleSaveTender = (tenderId, updatedTender) => {
-    setTenders(prev => 
-      prev.map(tender => 
-        tender.id === tenderId ? { ...tender, ...updatedTender } : tender
-      )
-    );
-    setEditingTender(null);
+  const handleSaveTender = async (tenderId, updatedTender) => {
+    try {
+      const { error } = await supabase
+        .from('tenders')
+        .update({
+          title: updatedTender.title,
+          organization: updatedTender.organization,
+          bid_guarantee: updatedTender.budget,
+          deadline: updatedTender.deadline,
+          sector: updatedTender.sector,
+          region: updatedTender.region
+        })
+        .eq('id', tenderId);
+
+      if (error) throw error;
+
+      setTenders(prev => 
+        prev.map(tender => 
+          tender.id === tenderId ? { ...tender, ...updatedTender } : tender
+        )
+      );
+      setEditingTender(null);
+      toast.success('Tender updated successfully');
+    } catch (error) {
+      console.error('Error updating tender:', error);
+      toast.error('Failed to update tender');
+    }
   };
 
-  const handleAddTender = (newTender) => {
-    setTenders(prev => [newTender, ...prev]);
+  const handleAddTender = async (newTender) => {
+    try {
+      const { data, error } = await supabase
+        .from('tenders')
+        .insert([{
+          title: newTender.title,
+          organization: newTender.organization,
+          bid_guarantee: newTender.budget,
+          opening_date: newTender.opening_date,
+          deadline: newTender.deadline,
+          sector: newTender.sector,
+          region: newTender.region,
+          description: newTender.description,
+          requirements: newTender.requirements,
+          posted_by: user?.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success('Tender posted successfully');
+      fetchTenders();
+    } catch (error) {
+      console.error('Error adding tender:', error);
+      toast.error('Failed to post tender');
+    }
   };
 
   const handleViewTenderDetails = (tender) => {
@@ -301,11 +325,27 @@ const Tenders = () => {
         </Card>
 
         {/* Tenders List */}
-        <div className="grid gap-6">
-          {tenders.map((tender) => (
-            <EditableTenderCard key={tender.id} tender={tender} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading tenders...</p>
+          </div>
+        ) : tenders.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No tenders available yet.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {tenders.map((tender) => (
+              <EditableTenderCard 
+                key={tender.id} 
+                tender={{
+                  ...tender,
+                  budget: tender.bid_guarantee
+                }} 
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Tender Details Modal */}
