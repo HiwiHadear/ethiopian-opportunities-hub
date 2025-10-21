@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Briefcase, Edit, Save, X, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -29,58 +29,34 @@ const Jobs = () => {
     return deadlineDate < today;
   };
   
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      title: "Senior Software Engineer",
-      company: "Ethiopian Airlines",
-      location: "Addis Ababa",
-      salary: "35,000 - 45,000 ETB",
-      type: "Full-time",
-      posted: "2 days ago",
-      deadline: "2024-07-20"
-    },
-    {
-      id: 2,
-      title: "Project Manager",
-      company: "Commercial Bank of Ethiopia",
-      location: "Addis Ababa",
-      salary: "40,000 - 55,000 ETB",
-      type: "Full-time",
-      posted: "1 day ago",
-      deadline: "2024-07-25"
-    },
-    {
-      id: 3,
-      title: "Marketing Specialist",
-      company: "Ethio Telecom",
-      location: "Bahir Dar",
-      salary: "25,000 - 35,000 ETB",
-      type: "Full-time",
-      posted: "3 days ago",
-      deadline: "2024-07-15"
-    },
-    {
-      id: 4,
-      title: "Data Analyst",
-      company: "Ethiopian Electric Utility",
-      location: "Dire Dawa",
-      salary: "28,000 - 38,000 ETB",
-      type: "Full-time",
-      posted: "4 days ago",
-      deadline: "2024-07-18"
-    },
-    {
-      id: 5,
-      title: "HR Manager",
-      company: "Awash Bank",
-      location: "Hawassa",
-      salary: "32,000 - 42,000 ETB",
-      type: "Full-time",
-      posted: "5 days ago",
-      deadline: "2024-08-01"
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load jobs",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const [editingJob, setEditingJob] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -100,17 +76,38 @@ const Jobs = () => {
     setEditingJob(jobId);
   };
 
-  const handleSaveJob = (jobId, updatedJob) => {
-    setJobs(prev => 
-      prev.map(job => 
-        job.id === jobId ? { ...job, ...updatedJob } : job
-      )
-    );
-    setEditingJob(null);
+  const handleSaveJob = async (jobId, updatedJob) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update(updatedJob)
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setJobs(prev => 
+        prev.map(job => 
+          job.id === jobId ? { ...job, ...updatedJob } : job
+        )
+      );
+      setEditingJob(null);
+
+      toast({
+        title: "Success",
+        description: "Job updated successfully"
+      });
+    } catch (error) {
+      console.error('Error updating job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update job",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleAddJob = (newJob) => {
-    setJobs(prev => [newJob, ...prev]);
+  const handleAddJob = async (newJob) => {
+    await fetchJobs(); // Refresh the jobs list from database
   };
 
   const handleApplyToJob = (job) => {
@@ -433,11 +430,21 @@ const Jobs = () => {
         </Card>
 
         {/* Jobs List */}
-        <div className="grid gap-6">
-          {jobs.map((job) => (
-            <EditableJobCard key={job.id} job={job} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Loading jobs...</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No jobs available yet.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {jobs.map((job) => (
+              <EditableJobCard key={job.id} job={job} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Job Application Modal with CV Creation */}
@@ -486,9 +493,17 @@ const Jobs = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Job Description
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
-                  We are looking for a qualified candidate to join our team. 
-                  This position offers excellent growth opportunities and competitive benefits.
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                  {selectedJob.description || 'No description provided'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Requirements
+                </label>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                  {selectedJob.requirements || 'No requirements specified'}
                 </p>
               </div>
 
