@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Edit, Trash2, Eye, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,6 +53,8 @@ const JobManagement = () => {
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editedJob, setEditedJob] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -167,15 +170,29 @@ const JobManagement = () => {
                 <TableCell>{getStatusBadge(job.status)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
+                     <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedJob(job);
+                        setEditedJob(job);
+                        setEditMode(false);
+                        setDetailsOpen(true);
+                      }}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => {
                         setSelectedJob(job);
+                        setEditedJob(job);
+                        setEditMode(true);
                         setDetailsOpen(true);
                       }}
                     >
-                      <Eye className="w-4 h-4" />
+                      <Edit className="w-4 h-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -207,56 +224,127 @@ const JobManagement = () => {
           </TableBody>
         </Table>
 
-        {/* Job Details Modal */}
+        {/* Job Details/Edit Modal */}
         <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Job Details</DialogTitle>
+              <DialogTitle>{editMode ? 'Edit Job' : 'Job Details'}</DialogTitle>
             </DialogHeader>
-            {selectedJob && (
+            {editedJob && (
               <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold">{selectedJob.title}</h3>
-                  <p className="text-gray-600">{selectedJob.company}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Location
-                    </label>
-                    <p className="text-gray-900">{selectedJob.location}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Salary
-                    </label>
-                    <p className="text-gray-900">{selectedJob.salary}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Type
-                    </label>
-                    <p className="text-gray-900">{selectedJob.type}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Posted
-                    </label>
-                    <p className="text-gray-900">{selectedJob.posted}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Posted By
-                    </label>
-                    <p className="text-gray-900">{selectedJob.postedBy}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Status
-                    </label>
-                    {getStatusBadge(selectedJob.status)}
-                  </div>
-                </div>
+                {editMode ? (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Title</label>
+                      <Input
+                        value={editedJob.title}
+                        onChange={(e) => setEditedJob({...editedJob, title: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Company</label>
+                      <Input
+                        value={editedJob.company}
+                        onChange={(e) => setEditedJob({...editedJob, company: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Location</label>
+                        <Input
+                          value={editedJob.location}
+                          onChange={(e) => setEditedJob({...editedJob, location: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Salary</label>
+                        <Input
+                          value={editedJob.salary}
+                          onChange={(e) => setEditedJob({...editedJob, salary: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Type</label>
+                        <Input
+                          value={editedJob.type}
+                          onChange={(e) => setEditedJob({...editedJob, type: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Description</label>
+                      <Textarea
+                        value={editedJob.description || ''}
+                        onChange={(e) => setEditedJob({...editedJob, description: e.target.value})}
+                        rows={4}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Requirements</label>
+                      <Textarea
+                        value={editedJob.requirements || ''}
+                        onChange={(e) => setEditedJob({...editedJob, requirements: e.target.value})}
+                        rows={4}
+                      />
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="outline" onClick={() => setEditMode(false)}>Cancel</Button>
+                      <Button onClick={() => {
+                        setJobs(prev => prev.map(j => j.id === editedJob.id ? editedJob : j));
+                        toast({ title: "Job Updated", description: "Job has been updated successfully." });
+                        setDetailsOpen(false);
+                        setEditMode(false);
+                      }}>
+                        Save Changes
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-semibold">{selectedJob.title}</h3>
+                      <p className="text-gray-600">{selectedJob.company}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <p className="text-gray-900">{selectedJob.location}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                        <p className="text-gray-900">{selectedJob.salary}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <p className="text-gray-900">{selectedJob.type}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Posted</label>
+                        <p className="text-gray-900">{selectedJob.posted}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Posted By</label>
+                        <p className="text-gray-900">{selectedJob.postedBy}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        {getStatusBadge(selectedJob.status)}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <p className="text-gray-900 whitespace-pre-wrap">{selectedJob.description || 'No description provided'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                      <p className="text-gray-900 whitespace-pre-wrap">{selectedJob.requirements || 'No requirements specified'}</p>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="outline" onClick={() => setDetailsOpen(false)}>Close</Button>
+                      <Button onClick={() => setEditMode(true)}>Edit</Button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </DialogContent>

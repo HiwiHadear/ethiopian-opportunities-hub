@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PostScholarshipDialog } from "@/components/PostScholarshipDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ export const ScholarshipManagement = () => {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingScholarship, setEditingScholarship] = useState<Scholarship | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const { toast } = useToast();
@@ -225,7 +227,10 @@ export const ScholarshipManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setEditingScholarship(scholarship)}
+                  onClick={() => {
+                    setEditingScholarship(scholarship);
+                    setEditDialogOpen(true);
+                  }}
                 >
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
@@ -251,6 +256,147 @@ export const ScholarshipManagement = () => {
           <p className="text-gray-500">No scholarships found</p>
         </div>
       )}
+
+      {/* Edit Scholarship Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Scholarship</DialogTitle>
+          </DialogHeader>
+          {editingScholarship && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Title</label>
+                <Input
+                  value={editingScholarship.title}
+                  onChange={(e) => setEditingScholarship({...editingScholarship, title: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Organization</label>
+                <Input
+                  value={editingScholarship.organization}
+                  onChange={(e) => setEditingScholarship({...editingScholarship, organization: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Level</label>
+                  <Input
+                    value={editingScholarship.level}
+                    onChange={(e) => setEditingScholarship({...editingScholarship, level: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Field</label>
+                  <Input
+                    value={editingScholarship.field}
+                    onChange={(e) => setEditingScholarship({...editingScholarship, field: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Amount</label>
+                  <Input
+                    value={editingScholarship.amount}
+                    onChange={(e) => setEditingScholarship({...editingScholarship, amount: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Deadline</label>
+                  <Input
+                    type="date"
+                    value={editingScholarship.deadline}
+                    onChange={(e) => setEditingScholarship({...editingScholarship, deadline: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Location</label>
+                  <Input
+                    value={editingScholarship.location}
+                    onChange={(e) => setEditingScholarship({...editingScholarship, location: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Application URL</label>
+                  <Input
+                    value={editingScholarship.application_url}
+                    onChange={(e) => setEditingScholarship({...editingScholarship, application_url: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <Textarea
+                  value={editingScholarship.description || ''}
+                  onChange={(e) => setEditingScholarship({...editingScholarship, description: e.target.value})}
+                  rows={4}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Requirements (comma-separated)</label>
+                <Textarea
+                  value={editingScholarship.requirements?.join(', ') || ''}
+                  onChange={(e) => setEditingScholarship({
+                    ...editingScholarship, 
+                    requirements: e.target.value.split(',').map(r => r.trim()).filter(r => r)
+                  })}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Benefits (comma-separated)</label>
+                <Textarea
+                  value={editingScholarship.benefits?.join(', ') || ''}
+                  onChange={(e) => setEditingScholarship({
+                    ...editingScholarship, 
+                    benefits: e.target.value.split(',').map(b => b.trim()).filter(b => b)
+                  })}
+                  rows={3}
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+                <Button onClick={async () => {
+                  try {
+                    const { error } = await supabase
+                      .from("scholarships")
+                      .update({
+                        title: editingScholarship.title,
+                        organization: editingScholarship.organization,
+                        level: editingScholarship.level,
+                        field: editingScholarship.field,
+                        amount: editingScholarship.amount,
+                        deadline: editingScholarship.deadline,
+                        location: editingScholarship.location,
+                        application_url: editingScholarship.application_url,
+                        description: editingScholarship.description,
+                        requirements: editingScholarship.requirements,
+                        benefits: editingScholarship.benefits,
+                      })
+                      .eq("id", editingScholarship.id);
+
+                    if (error) throw error;
+
+                    setScholarships(prev => prev.map(s => 
+                      s.id === editingScholarship.id ? editingScholarship : s
+                    ));
+                    toast({ title: "Success", description: "Scholarship updated successfully" });
+                    setEditDialogOpen(false);
+                  } catch (error: any) {
+                    toast({ 
+                      title: "Error", 
+                      description: "Failed to update scholarship", 
+                      variant: "destructive" 
+                    });
+                  }
+                }}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Edit, Trash2, Eye, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,6 +53,8 @@ const TenderManagement = () => {
 
   const [selectedTender, setSelectedTender] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editedTender, setEditedTender] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -167,15 +170,29 @@ const TenderManagement = () => {
                 <TableCell>{getStatusBadge(tender.status)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
+                     <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedTender(tender);
+                        setEditedTender(tender);
+                        setEditMode(false);
+                        setDetailsOpen(true);
+                      }}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => {
                         setSelectedTender(tender);
+                        setEditedTender(tender);
+                        setEditMode(true);
                         setDetailsOpen(true);
                       }}
                     >
-                      <Eye className="w-4 h-4" />
+                      <Edit className="w-4 h-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -207,56 +224,135 @@ const TenderManagement = () => {
           </TableBody>
         </Table>
 
-        {/* Tender Details Modal */}
+        {/* Tender Details/Edit Modal */}
         <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Tender Details</DialogTitle>
+              <DialogTitle>{editMode ? 'Edit Tender' : 'Tender Details'}</DialogTitle>
             </DialogHeader>
-            {selectedTender && (
+            {editedTender && (
               <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold">{selectedTender.title}</h3>
-                  <p className="text-gray-600">{selectedTender.organization}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bid Guarantee
-                    </label>
-                    <p className="text-gray-900">{selectedTender.budget}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Deadline
-                    </label>
-                    <p className="text-gray-900">{selectedTender.deadline}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Sector
-                    </label>
-                    <p className="text-gray-900">{selectedTender.sector}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Region
-                    </label>
-                    <p className="text-gray-900">{selectedTender.region}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Posted By
-                    </label>
-                    <p className="text-gray-900">{selectedTender.postedBy}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Status
-                    </label>
-                    {getStatusBadge(selectedTender.status)}
-                  </div>
-                </div>
+                {editMode ? (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Title</label>
+                      <Input
+                        value={editedTender.title}
+                        onChange={(e) => setEditedTender({...editedTender, title: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Organization</label>
+                      <Input
+                        value={editedTender.organization}
+                        onChange={(e) => setEditedTender({...editedTender, organization: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Bid Guarantee</label>
+                        <Input
+                          value={editedTender.budget}
+                          onChange={(e) => setEditedTender({...editedTender, budget: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Deadline</label>
+                        <Input
+                          type="date"
+                          value={editedTender.deadline}
+                          onChange={(e) => setEditedTender({...editedTender, deadline: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Sector</label>
+                        <Input
+                          value={editedTender.sector}
+                          onChange={(e) => setEditedTender({...editedTender, sector: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Region</label>
+                        <Input
+                          value={editedTender.region}
+                          onChange={(e) => setEditedTender({...editedTender, region: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Description</label>
+                      <Textarea
+                        value={editedTender.description || ''}
+                        onChange={(e) => setEditedTender({...editedTender, description: e.target.value})}
+                        rows={4}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Requirements</label>
+                      <Textarea
+                        value={editedTender.requirements || ''}
+                        onChange={(e) => setEditedTender({...editedTender, requirements: e.target.value})}
+                        rows={4}
+                      />
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="outline" onClick={() => setEditMode(false)}>Cancel</Button>
+                      <Button onClick={() => {
+                        setTenders(prev => prev.map(t => t.id === editedTender.id ? editedTender : t));
+                        toast({ title: "Tender Updated", description: "Tender has been updated successfully." });
+                        setDetailsOpen(false);
+                        setEditMode(false);
+                      }}>
+                        Save Changes
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-semibold">{selectedTender.title}</h3>
+                      <p className="text-gray-600">{selectedTender.organization}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Bid Guarantee</label>
+                        <p className="text-gray-900">{selectedTender.budget}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                        <p className="text-gray-900">{selectedTender.deadline}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sector</label>
+                        <p className="text-gray-900">{selectedTender.sector}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                        <p className="text-gray-900">{selectedTender.region}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Posted By</label>
+                        <p className="text-gray-900">{selectedTender.postedBy}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        {getStatusBadge(selectedTender.status)}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <p className="text-gray-900 whitespace-pre-wrap">{selectedTender.description || 'No description provided'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                      <p className="text-gray-900 whitespace-pre-wrap">{selectedTender.requirements || 'No requirements specified'}</p>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="outline" onClick={() => setDetailsOpen(false)}>Close</Button>
+                      <Button onClick={() => setEditMode(true)}>Edit</Button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </DialogContent>
