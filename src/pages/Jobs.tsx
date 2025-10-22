@@ -22,11 +22,18 @@ const Jobs = () => {
   const { isAdmin } = useProfile();
   const { toast } = useToast();
 
-  // Helper function to check if job is expired
-  const isJobExpired = (deadline) => {
-    const today = new Date();
-    const deadlineDate = new Date(deadline);
-    return deadlineDate < today;
+  // Helper function to format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
   };
   
   const [jobs, setJobs] = useState([]);
@@ -228,7 +235,6 @@ const Jobs = () => {
   const EditableJobCard = ({ job }) => {
     const [editData, setEditData] = useState(job);
     const isEditing = editingJob === job.id;
-    const isExpired = isJobExpired(job.deadline);
 
     if (isEditing) {
       return (
@@ -250,24 +256,38 @@ const Jobs = () => {
                 onChange={(e) => setEditData({ ...editData, location: e.target.value })}
                 placeholder="Location"
               />
-              <Input
-                value={editData.type}
-                onChange={(e) => setEditData({ ...editData, type: e.target.value })}
-                placeholder="Job Type"
-              />
+              <Select
+                value={editData.job_type}
+                onValueChange={(value) => setEditData({ ...editData, job_type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Job Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full-time">Full-time</SelectItem>
+                  <SelectItem value="part-time">Part-time</SelectItem>
+                  <SelectItem value="contract">Contract</SelectItem>
+                  <SelectItem value="remote">Remote</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Input
-                value={editData.salary}
-                onChange={(e) => setEditData({ ...editData, salary: e.target.value })}
-                placeholder="Salary Range"
-              />
-              <Input
-                value={editData.posted}
-                onChange={(e) => setEditData({ ...editData, posted: e.target.value })}
-                placeholder="Posted"
-              />
-            </div>
+            <Input
+              value={editData.salary || ''}
+              onChange={(e) => setEditData({ ...editData, salary: e.target.value })}
+              placeholder="Salary Range"
+            />
+            <Textarea
+              value={editData.description || ''}
+              onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+              placeholder="Job Description"
+              rows={4}
+            />
+            <Textarea
+              value={editData.requirements || ''}
+              onChange={(e) => setEditData({ ...editData, requirements: e.target.value })}
+              placeholder="Requirements"
+              rows={3}
+            />
             <div className="flex gap-2">
               <Button size="sm" onClick={() => handleSaveJob(job.id, editData)}>
                 <Save className="w-4 h-4 mr-1" />
@@ -284,21 +304,18 @@ const Jobs = () => {
     }
 
     return (
-      <div className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
-        isExpired ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
-      }`}>
+      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow border-green-200 bg-green-50">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
           <div className="flex items-center gap-2">
-            <Badge 
-              variant={isExpired ? "destructive" : "outline"}
-              className={isExpired ? "bg-red-500 text-white" : ""}
-            >
-              {isExpired ? "EXPIRED" : job.type}
+            <Badge variant="outline">
+              {job.job_type || 'full-time'}
             </Badge>
-            <Button size="sm" variant="ghost" onClick={() => handleEditJob(job.id)}>
-              <Edit className="w-4 h-4" />
-            </Button>
+            {isAdmin && (
+              <Button size="sm" variant="ghost" onClick={() => handleEditJob(job.id)}>
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
         <p className="text-gray-600 mb-3">{job.company}</p>
@@ -307,25 +324,22 @@ const Jobs = () => {
             <MapPin className="w-4 h-4 mr-1" />
             {job.location}
           </span>
-          <span className="font-semibold text-green-600">
-            {job.salary}
-          </span>
-          <span className={`flex items-center font-medium ${
-            isExpired ? 'text-red-600' : 'text-green-600'
-          }`}>
+          {job.salary && (
+            <span className="font-semibold text-green-600">
+              {job.salary}
+            </span>
+          )}
+          <span className="flex items-center text-gray-500">
             <Calendar className="w-4 h-4 mr-1" />
-            Deadline: {job.deadline}
-            {isExpired && <span className="ml-2 text-red-500 font-bold">EXPIRED</span>}
+            Posted {formatDate(job.created_at)}
           </span>
-          <span className="text-gray-500">{job.posted}</span>
         </div>
         <Button 
           size="sm" 
-          className={isExpired ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
+          className="bg-green-600 hover:bg-green-700"
           onClick={() => handleApplyToJob(job)}
-          disabled={isExpired}
         >
-          {isExpired ? "Expired" : "Apply Now"}
+          Apply Now
         </Button>
       </div>
     );
@@ -473,7 +487,7 @@ const Jobs = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Job Type
                   </label>
-                  <p className="text-gray-900">{selectedJob.type}</p>
+                  <p className="text-gray-900">{selectedJob.job_type || 'full-time'}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -485,7 +499,7 @@ const Jobs = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Posted
                   </label>
-                  <p className="text-gray-600">{selectedJob.posted}</p>
+                  <p className="text-gray-600">{formatDate(selectedJob.created_at)}</p>
                 </div>
               </div>
               
