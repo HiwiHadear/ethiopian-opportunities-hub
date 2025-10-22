@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import PostTenderDialog from '@/components/PostTenderDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -58,20 +59,18 @@ const Tenders = () => {
         .update({
           title: updatedTender.title,
           organization: updatedTender.organization,
-          bid_guarantee: updatedTender.budget,
+          bid_guarantee: updatedTender.bid_guarantee || updatedTender.budget,
           deadline: updatedTender.deadline,
           sector: updatedTender.sector,
-          region: updatedTender.region
+          region: updatedTender.region,
+          description: updatedTender.description,
+          requirements: updatedTender.requirements
         })
         .eq('id', tenderId);
 
       if (error) throw error;
 
-      setTenders(prev => 
-        prev.map(tender => 
-          tender.id === tenderId ? { ...tender, ...updatedTender } : tender
-        )
-      );
+      await fetchTenders();
       setEditingTender(null);
       toast.success('Tender updated successfully');
     } catch (error) {
@@ -142,9 +141,9 @@ const Tenders = () => {
             />
             <div className="grid grid-cols-2 gap-2">
               <Input
-                value={editData.budget}
-                onChange={(e) => setEditData({ ...editData, budget: e.target.value })}
-                placeholder="Budget"
+                value={editData.bid_guarantee || editData.budget || ''}
+                onChange={(e) => setEditData({ ...editData, bid_guarantee: e.target.value, budget: e.target.value })}
+                placeholder="Bid Guarantee"
               />
               <Input
                 value={editData.sector}
@@ -164,6 +163,18 @@ const Tenders = () => {
                 onChange={(e) => setEditData({ ...editData, deadline: e.target.value })}
               />
             </div>
+            <Textarea
+              value={editData.description || ''}
+              onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+              placeholder="Description"
+              rows={4}
+            />
+            <Textarea
+              value={editData.requirements || ''}
+              onChange={(e) => setEditData({ ...editData, requirements: e.target.value })}
+              placeholder="Requirements"
+              rows={3}
+            />
             <div className="flex gap-2">
               <Button size="sm" onClick={() => handleSaveTender(tender.id, editData)}>
                 <Save className="w-4 h-4 mr-1" />
@@ -192,9 +203,11 @@ const Tenders = () => {
             >
               {isExpired ? "EXPIRED" : tender.sector}
             </Badge>
-            <Button size="sm" variant="ghost" onClick={() => handleEditTender(tender.id)}>
-              <Edit className="w-4 h-4" />
-            </Button>
+            {isAdmin && (
+              <Button size="sm" variant="ghost" onClick={() => handleEditTender(tender.id)}>
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
         <p className="text-gray-600 mb-3">{tender.organization}</p>
@@ -211,7 +224,7 @@ const Tenders = () => {
             {isExpired && <span className="ml-2 text-red-500 font-bold">EXPIRED</span>}
           </span>
           <span className="font-semibold text-green-600">
-            Bid Guarantee: {tender.budget}
+            Bid Guarantee: {tender.bid_guarantee || tender.budget}
           </span>
         </div>
         <Button 
@@ -338,10 +351,7 @@ const Tenders = () => {
             {tenders.map((tender) => (
               <EditableTenderCard 
                 key={tender.id} 
-                tender={{
-                  ...tender,
-                  budget: tender.bid_guarantee
-                }} 
+                tender={tender} 
               />
             ))}
           </div>
@@ -380,7 +390,7 @@ const Tenders = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Bid Guarantee
                   </label>
-                  <p className="text-green-600 font-semibold">{selectedTender.budget}</p>
+                  <p className="text-green-600 font-semibold">{selectedTender.bid_guarantee}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -401,9 +411,17 @@ const Tenders = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Description
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
-                  This is a detailed description of the tender requirements. 
-                  Please review all specifications and submit your proposal accordingly.
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                  {selectedTender.description || 'No description provided'}
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Requirements
+                </label>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                  {selectedTender.requirements || 'No requirements specified'}
                 </p>
               </div>
               
