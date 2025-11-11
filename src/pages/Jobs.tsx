@@ -38,6 +38,9 @@ const Jobs = () => {
   
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jobTypeFilter, setJobTypeFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
 
   useEffect(() => {
     fetchJobs();
@@ -64,6 +67,21 @@ const Jobs = () => {
       setLoading(false);
     }
   };
+
+  // Filter jobs based on search and filters
+  const filteredJobs = jobs.filter(job => {
+    const matchesSearch = searchTerm === '' || 
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesJobType = jobTypeFilter === 'all' || job.job_type === jobTypeFilter;
+    
+    const matchesLocation = locationFilter === 'all' || 
+      job.location.toLowerCase().includes(locationFilter.toLowerCase());
+    
+    return matchesSearch && matchesJobType && matchesLocation;
+  });
 
   const [editingJob, setEditingJob] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -406,12 +424,14 @@ const Jobs = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                   <Input 
-                    placeholder="Search jobs..." 
+                    placeholder="Search jobs by title, company, or location..." 
                     className="pl-10"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
               </div>
-              <Select>
+              <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Job Type" />
                 </SelectTrigger>
@@ -420,26 +440,41 @@ const Jobs = () => {
                   <SelectItem value="full-time">Full-time</SelectItem>
                   <SelectItem value="part-time">Part-time</SelectItem>
                   <SelectItem value="contract">Contract</SelectItem>
-                  <SelectItem value="remote">Remote</SelectItem>
+                  <SelectItem value="internship">Internship</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={locationFilter} onValueChange={setLocationFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Location" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="addis-ababa">Addis Ababa</SelectItem>
-                  <SelectItem value="dire-dawa">Dire Dawa</SelectItem>
+                  <SelectItem value="addis ababa">Addis Ababa</SelectItem>
+                  <SelectItem value="dire dawa">Dire Dawa</SelectItem>
                   <SelectItem value="hawassa">Hawassa</SelectItem>
-                  <SelectItem value="bahir-dar">Bahir Dar</SelectItem>
+                  <SelectItem value="bahir dar">Bahir Dar</SelectItem>
                   <SelectItem value="mekelle">Mekelle</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
-                Search
-              </Button>
             </div>
+            {(searchTerm || jobTypeFilter !== 'all' || locationFilter !== 'all') && (
+              <div className="mt-4 flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  Showing {filteredJobs.length} of {jobs.length} jobs
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setJobTypeFilter('all');
+                    setLocationFilter('all');
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -452,9 +487,24 @@ const Jobs = () => {
           <div className="text-center py-8">
             <p className="text-gray-500">No jobs available yet.</p>
           </div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No jobs match your search criteria.</p>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={() => {
+                setSearchTerm('');
+                setJobTypeFilter('all');
+                setLocationFilter('all');
+              }}
+            >
+              Clear filters
+            </Button>
+          </div>
         ) : (
           <div className="grid gap-6">
-            {jobs.map((job) => (
+            {filteredJobs.map((job) => (
               <EditableJobCard key={job.id} job={job} />
             ))}
           </div>
