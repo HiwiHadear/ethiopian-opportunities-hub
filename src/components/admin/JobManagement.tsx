@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Edit, Trash2, Eye, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Edit, Trash2, Eye, Search, Filter, CheckCircle, XCircle, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,47 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import PostJobDialog from '@/components/PostJobDialog';
 
 const JobManagement = () => {
   const { toast } = useToast();
   
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      title: "Senior Software Engineer",
-      company: "Ethiopian Airlines",
-      location: "Addis Ababa",
-      salary: "35,000 - 45,000 ETB",
-      type: "Full-time",
-      posted: "2 days ago",
-      status: "approved",
-      postedBy: "ethiopian_airlines_hr"
-    },
-    {
-      id: 2,
-      title: "Project Manager",
-      company: "Commercial Bank of Ethiopia",
-      location: "Addis Ababa",
-      salary: "40,000 - 55,000 ETB",
-      type: "Full-time",
-      posted: "1 day ago",
-      status: "pending",
-      postedBy: "cbe_recruitment"
-    },
-    {
-      id: 3,
-      title: "Marketing Specialist",
-      company: "Ethio Telecom",
-      location: "Bahir Dar",
-      salary: "25,000 - 35,000 ETB",
-      type: "Full-time",
-      posted: "3 days ago",
-      status: "rejected",
-      postedBy: "ethiotelecom_hr"
-    }
-  ]);
-
+  const [jobs, setJobs] = useState([]);
+  const [jobApplicationCounts, setJobApplicationCounts] = useState({});
+  const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -58,26 +26,105 @@ const JobManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const handleStatusChange = (jobId, newStatus) => {
-    setJobs(prev => 
-      prev.map(job => 
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
-    );
-    
-    toast({
-      title: "Status Updated",
-      description: `Job status changed to ${newStatus}`,
-    });
+  useEffect(() => {
+    fetchJobsAndApplications();
+  }, []);
+
+  const fetchJobsAndApplications = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch all jobs
+      const { data: jobsData, error: jobsError } = await supabase
+        .from('jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (jobsError) throw jobsError;
+
+      // Fetch application counts for each job
+      const { data: applicationsData, error: applicationsError } = await supabase
+        .from('job_applications')
+        .select('job_id, status');
+
+      if (applicationsError) throw applicationsError;
+
+      // Count applications per job
+      const counts = {};
+      applicationsData.forEach(app => {
+        if (!counts[app.job_id]) {
+          counts[app.job_id] = { total: 0, pending: 0, approved: 0, rejected: 0 };
+        }
+        counts[app.job_id].total++;
+        counts[app.job_id][app.status]++;
+      });
+
+      setJobs(jobsData || []);
+      setJobApplicationCounts(counts);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load jobs",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteJob = (jobId) => {
-    setJobs(prev => prev.filter(job => job.id !== jobId));
-    toast({
-      title: "Job Deleted",
-      description: "The job posting has been permanently removed.",
-      variant: "destructive"
-    });
+  const handleStatusChange = async (jobId, newStatus) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ status: newStatus })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setJobs(prev => 
+        prev.map(job => 
+          job.id === jobId ? { ...job, status: newStatus } : job
+        )
+      );
+      
+      toast({
+        title: "Status Updated",
+        description: `Job status changed to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update job status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setJobs(prev => prev.filter(job => job.id !== jobId));
+      toast({
+        title: "Job Deleted",
+        description: "The job posting has been permanently removed.",
+        variant: "destructive"
+      });
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete job",
+        variant: "destructive"
+      });
+    }
   };
 
   const filteredJobs = jobs.filter(job => {
@@ -100,16 +147,8 @@ const JobManagement = () => {
     }
   };
 
-  const handleNewJob = (jobData) => {
-    const newJob = {
-      id: Math.max(...jobs.map(j => j.id)) + 1,
-      ...jobData,
-      posted: "Just now",
-      status: "pending",
-      postedBy: "admin"
-    };
-    
-    setJobs(prev => [newJob, ...prev]);
+  const handleNewJob = async (jobData) => {
+    await fetchJobsAndApplications();
     toast({
       title: "Job Created",
       description: "New job posting has been created successfully.",
@@ -156,20 +195,49 @@ const JobManagement = () => {
               <TableHead>Company</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Salary</TableHead>
+              <TableHead>Applications</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredJobs.map((job) => (
-              <TableRow key={job.id}>
-                <TableCell className="font-medium">{job.title}</TableCell>
-                <TableCell>{job.company}</TableCell>
-                <TableCell>{job.location}</TableCell>
-                <TableCell>{job.salary}</TableCell>
-                <TableCell>{getStatusBadge(job.status)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  Loading jobs...
+                </TableCell>
+              </TableRow>
+            ) : filteredJobs.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  No jobs found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredJobs.map((job) => {
+                const appCount = jobApplicationCounts[job.id] || { total: 0, pending: 0 };
+                return (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">{job.title}</TableCell>
+                    <TableCell>{job.company}</TableCell>
+                    <TableCell>{job.location}</TableCell>
+                    <TableCell>{job.salary || 'Not specified'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {appCount.total}
+                        </Badge>
+                        {appCount.pending > 0 && (
+                          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                            {appCount.pending} pending
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(job.status)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
                      <Button
                       size="sm"
                       variant="outline"
@@ -210,17 +278,19 @@ const JobManagement = () => {
                     >
                       <XCircle className="w-4 h-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDeleteJob(job.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteJob(job.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
 
@@ -263,13 +333,23 @@ const JobManagement = () => {
                           onChange={(e) => setEditedJob({...editedJob, salary: e.target.value})}
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Type</label>
-                        <Input
-                          value={editedJob.type}
-                          onChange={(e) => setEditedJob({...editedJob, type: e.target.value})}
-                        />
-                      </div>
+                       <div>
+                         <label className="block text-sm font-medium mb-1">Type</label>
+                         <Select 
+                           value={editedJob.job_type} 
+                           onValueChange={(value) => setEditedJob({...editedJob, job_type: value})}
+                         >
+                           <SelectTrigger>
+                             <SelectValue />
+                           </SelectTrigger>
+                           <SelectContent>
+                             <SelectItem value="full-time">Full-time</SelectItem>
+                             <SelectItem value="part-time">Part-time</SelectItem>
+                             <SelectItem value="contract">Contract</SelectItem>
+                             <SelectItem value="internship">Internship</SelectItem>
+                           </SelectContent>
+                         </Select>
+                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Description</label>
@@ -287,17 +367,41 @@ const JobManagement = () => {
                         rows={4}
                       />
                     </div>
-                    <div className="flex gap-2 justify-end">
-                      <Button variant="outline" onClick={() => setEditMode(false)}>Cancel</Button>
-                      <Button onClick={() => {
-                        setJobs(prev => prev.map(j => j.id === editedJob.id ? editedJob : j));
-                        toast({ title: "Job Updated", description: "Job has been updated successfully." });
-                        setDetailsOpen(false);
-                        setEditMode(false);
-                      }}>
-                        Save Changes
-                      </Button>
-                    </div>
+                     <div className="flex gap-2 justify-end">
+                       <Button variant="outline" onClick={() => setEditMode(false)}>Cancel</Button>
+                       <Button onClick={async () => {
+                         try {
+                           const { error } = await supabase
+                             .from('jobs')
+                             .update({
+                               title: editedJob.title,
+                               company: editedJob.company,
+                               location: editedJob.location,
+                               salary: editedJob.salary,
+                               job_type: editedJob.job_type,
+                               description: editedJob.description,
+                               requirements: editedJob.requirements
+                             })
+                             .eq('id', editedJob.id);
+
+                           if (error) throw error;
+
+                           setJobs(prev => prev.map(j => j.id === editedJob.id ? editedJob : j));
+                           toast({ title: "Job Updated", description: "Job has been updated successfully." });
+                           setDetailsOpen(false);
+                           setEditMode(false);
+                         } catch (error) {
+                           console.error('Error updating job:', error);
+                           toast({
+                             title: "Error",
+                             description: "Failed to update job",
+                             variant: "destructive"
+                           });
+                         }
+                       }}>
+                         Save Changes
+                       </Button>
+                     </div>
                   </>
                 ) : (
                   <>
@@ -305,32 +409,37 @@ const JobManagement = () => {
                       <h3 className="text-lg font-semibold">{selectedJob.title}</h3>
                       <p className="text-gray-600">{selectedJob.company}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                        <p className="text-gray-900">{selectedJob.location}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Salary</label>
-                        <p className="text-gray-900">{selectedJob.salary}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                        <p className="text-gray-900">{selectedJob.type}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Posted</label>
-                        <p className="text-gray-900">{selectedJob.posted}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Posted By</label>
-                        <p className="text-gray-900">{selectedJob.postedBy}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        {getStatusBadge(selectedJob.status)}
-                      </div>
-                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                         <p className="text-gray-900">{selectedJob.location}</p>
+                       </div>
+                       <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                         <p className="text-gray-900">{selectedJob.salary || 'Not specified'}</p>
+                       </div>
+                       <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                         <p className="text-gray-900">{selectedJob.job_type}</p>
+                       </div>
+                       <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                         {getStatusBadge(selectedJob.status)}
+                       </div>
+                       <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Total Applications</label>
+                         <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                           <Users className="w-3 h-3" />
+                           {jobApplicationCounts[selectedJob.id]?.total || 0}
+                         </Badge>
+                       </div>
+                       <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Pending Applications</label>
+                         <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 w-fit">
+                           {jobApplicationCounts[selectedJob.id]?.pending || 0}
+                         </Badge>
+                       </div>
+                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                       <p className="text-gray-900 whitespace-pre-wrap">{selectedJob.description || 'No description provided'}</p>
