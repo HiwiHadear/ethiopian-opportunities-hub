@@ -8,24 +8,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Plus, AlertTriangle } from 'lucide-react';
-import { jobSchema, sanitizeObject } from '@/lib/validation';
-import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PostJobDialogProps {
   onSubmit: (job: any) => void;
 }
 
 const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     company: '',
     location: '',
     salary: '',
-    type: '',
+    job_type: '',
     description: '',
-    requirements: '',
-    posted: 'Just now'
+    requirements: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,42 +38,55 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
     setIsSubmitting(true);
 
     try {
-      // Sanitize input data
-      const sanitizedData = sanitizeObject(formData);
-      
-      // Validate data
-      const validatedData = jobSchema.parse(sanitizedData);
-      
-      const newJob = {
-        id: Date.now(),
-        ...validatedData,
-        posted: 'Just now'
-      };
-      
-      await onSubmit(newJob);
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to post a job.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('jobs')
+        .insert([{
+          title: formData.title,
+          company: formData.company,
+          location: formData.location,
+          salary: formData.salary,
+          job_type: formData.job_type,
+          description: formData.description,
+          requirements: formData.requirements,
+          posted_by: user.id,
+          status: 'approved'
+        }])
+        .select();
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Job posted successfully!"
+      });
+
       setFormData({
         title: '',
         company: '',
         location: '',
         salary: '',
-        type: '',
+        job_type: '',
         description: '',
-        requirements: '',
-        posted: 'Just now'
+        requirements: ''
       });
       setOpen(false);
+      await onSubmit(data[0]);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.issues.forEach((issue) => {
-          if (issue.path[0]) {
-            fieldErrors[issue.path[0] as string] = issue.message;
-          }
-        });
-        setErrors(fieldErrors);
-      } else {
-        setErrors({ general: 'Failed to create job. Please try again.' });
-      }
+      console.error('Error posting job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to post job. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -137,20 +152,20 @@ const PostJobDialog = ({ onSubmit }: PostJobDialogProps) => {
               {errors.location && <p className="text-sm text-red-500 mt-1">{errors.location}</p>}
             </div>
             <div>
-              <Label htmlFor="type">Job Type</Label>
+              <Label htmlFor="job_type">Job Type</Label>
               <p className="text-xs text-gray-500 mb-1">Employment type</p>
-              <Select onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                <SelectTrigger className={errors.type ? 'border-red-500' : ''}>
+              <Select onValueChange={(value) => setFormData({ ...formData, job_type: value })}>
+                <SelectTrigger className={errors.job_type ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Full-time">Full-time</SelectItem>
-                  <SelectItem value="Part-time">Part-time</SelectItem>
-                  <SelectItem value="Contract">Contract</SelectItem>
-                  <SelectItem value="Internship">Internship</SelectItem>
+                  <SelectItem value="full-time">Full-time</SelectItem>
+                  <SelectItem value="part-time">Part-time</SelectItem>
+                  <SelectItem value="contract">Contract</SelectItem>
+                  <SelectItem value="internship">Internship</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.type && <p className="text-sm text-red-500 mt-1">{errors.type}</p>}
+              {errors.job_type && <p className="text-sm text-red-500 mt-1">{errors.job_type}</p>}
             </div>
           </div>
           <div>
