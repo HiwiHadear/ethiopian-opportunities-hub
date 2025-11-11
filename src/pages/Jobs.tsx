@@ -41,6 +41,7 @@ const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [jobTypeFilter, setJobTypeFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     fetchJobs();
@@ -68,7 +69,7 @@ const Jobs = () => {
     }
   };
 
-  // Filter jobs based on search and filters
+  // Filter and sort jobs
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = searchTerm === '' || 
       job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,6 +82,34 @@ const Jobs = () => {
       job.location.toLowerCase().includes(locationFilter.toLowerCase());
     
     return matchesSearch && matchesJobType && matchesLocation;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case 'salary-high':
+        // Extract first number from salary string for comparison
+        const extractSalary = (salary: string) => {
+          if (!salary) return 0;
+          const match = salary.match(/[\d,]+/);
+          return match ? parseInt(match[0].replace(/,/g, '')) : 0;
+        };
+        return extractSalary(b.salary) - extractSalary(a.salary);
+      case 'salary-low':
+        const extractSalaryLow = (salary: string) => {
+          if (!salary) return 0;
+          const match = salary.match(/[\d,]+/);
+          return match ? parseInt(match[0].replace(/,/g, '')) : 0;
+        };
+        return extractSalaryLow(a.salary) - extractSalaryLow(b.salary);
+      case 'title-asc':
+        return a.title.localeCompare(b.title);
+      case 'title-desc':
+        return b.title.localeCompare(a.title);
+      default:
+        return 0;
+    }
   });
 
   const [editingJob, setEditingJob] = useState(null);
@@ -419,44 +448,64 @@ const Jobs = () => {
         {/* Search and Filters */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <Input 
-                    placeholder="Search jobs by title, company, or location..." 
-                    className="pl-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <Input 
+                      placeholder="Search jobs by title, company, or location..." 
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
                 </div>
+                <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Job Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={locationFilter} onValueChange={setLocationFilter}>
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    <SelectItem value="addis ababa">Addis Ababa</SelectItem>
+                    <SelectItem value="dire dawa">Dire Dawa</SelectItem>
+                    <SelectItem value="hawassa">Hawassa</SelectItem>
+                    <SelectItem value="bahir dar">Bahir Dar</SelectItem>
+                    <SelectItem value="mekelle">Mekelle</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Job Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="full-time">Full-time</SelectItem>
-                  <SelectItem value="part-time">Part-time</SelectItem>
-                  <SelectItem value="contract">Contract</SelectItem>
-                  <SelectItem value="internship">Internship</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="addis ababa">Addis Ababa</SelectItem>
-                  <SelectItem value="dire dawa">Dire Dawa</SelectItem>
-                  <SelectItem value="hawassa">Hawassa</SelectItem>
-                  <SelectItem value="bahir dar">Bahir Dar</SelectItem>
-                  <SelectItem value="mekelle">Mekelle</SelectItem>
-                </SelectContent>
-              </Select>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 whitespace-nowrap">Sort by:</span>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full md:w-64">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="oldest">Oldest First</SelectItem>
+                    <SelectItem value="salary-high">Salary: High to Low</SelectItem>
+                    <SelectItem value="salary-low">Salary: Low to High</SelectItem>
+                    <SelectItem value="title-asc">Title: A to Z</SelectItem>
+                    <SelectItem value="title-desc">Title: Z to A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+            
             {(searchTerm || jobTypeFilter !== 'all' || locationFilter !== 'all') && (
               <div className="mt-4 flex items-center gap-2">
                 <span className="text-sm text-gray-600">
