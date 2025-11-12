@@ -38,6 +38,7 @@ import NotificationCenter from '@/components/admin/NotificationCenter';
 import JobApplicationManagement from '@/components/admin/JobApplicationManagement';
 import TenderApplicationManagement from '@/components/admin/TenderApplicationManagement';
 import AdminSettings from '@/components/admin/AdminSettings';
+import JobAnalytics from '@/components/admin/JobAnalytics';
 
 // Navigation items for the sidebar
 const navigationItems = [
@@ -247,13 +248,7 @@ const AdminDashboard = () => {
       case 'notifications':
         return <NotificationCenter />;
       case 'analytics':
-        return (
-          <div className="text-center py-12">
-            <BarChart3 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Reports & Analytics</h3>
-            <p className="text-muted-foreground">Coming soon...</p>
-          </div>
-        );
+        return <JobAnalytics />;
       case 'settings':
         return <AdminSettings />;
       default:
