@@ -431,10 +431,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_first_admin: {
-        Args: { admin_email: string }
-        Returns: undefined
-      }
+      create_first_admin: { Args: { admin_email: string }; Returns: undefined }
       demote_admin_to_user: {
         Args: { target_user_id: string }
         Returns: undefined
