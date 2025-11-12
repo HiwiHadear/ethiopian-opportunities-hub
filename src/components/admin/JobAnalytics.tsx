@@ -38,6 +38,28 @@ const JobAnalytics = () => {
 
   useEffect(() => {
     fetchAnalyticsData();
+
+    // Set up real-time subscription for job applications
+    const channel = supabase
+      .channel('analytics-applications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'job_applications'
+        },
+        () => {
+          console.log('Analytics: Job application change detected, refreshing data...');
+          fetchAnalyticsData();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchAnalyticsData = async () => {

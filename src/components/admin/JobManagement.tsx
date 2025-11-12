@@ -28,7 +28,53 @@ const JobManagement = () => {
 
   useEffect(() => {
     fetchJobsAndApplications();
-  }, []);
+
+    // Set up real-time subscription for job applications
+    const channel = supabase
+      .channel('job-applications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'job_applications'
+        },
+        async (payload) => {
+          console.log('Job application change detected:', payload);
+          
+          // Refetch application counts when changes occur
+          const { data: applicationsData, error: applicationsError } = await supabase
+            .from('job_applications')
+            .select('job_id, status');
+
+          if (!applicationsError && applicationsData) {
+            const counts = {};
+            applicationsData.forEach(app => {
+              if (!counts[app.job_id]) {
+                counts[app.job_id] = { total: 0, pending: 0, approved: 0, rejected: 0 };
+              }
+              counts[app.job_id].total++;
+              counts[app.job_id][app.status]++;
+            });
+            setJobApplicationCounts(counts);
+
+            // Show toast notification for new applications
+            if (payload.eventType === 'INSERT') {
+              toast({
+                title: "New Application",
+                description: "A new job application has been received.",
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
 
   const fetchJobsAndApplications = async () => {
     try {
