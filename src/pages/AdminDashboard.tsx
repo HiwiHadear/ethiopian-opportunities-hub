@@ -39,6 +39,7 @@ import JobApplicationManagement from '@/components/admin/JobApplicationManagemen
 import TenderApplicationManagement from '@/components/admin/TenderApplicationManagement';
 import AdminSettings from '@/components/admin/AdminSettings';
 import JobAnalytics from '@/components/admin/JobAnalytics';
+import NotificationBell from '@/components/admin/NotificationBell';
 
 // Navigation items for the sidebar
 const navigationItems = [
@@ -313,12 +314,7 @@ const AdminDashboard = () => {
 
               <div className="flex items-center gap-4">
                 {/* Notifications */}
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="w-5 h-5" />
-                  <Badge variant="destructive" className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs">
-                    3
-                  </Badge>
-                </Button>
+                <NotificationBell />
 
                 {/* Admin Profile Dropdown */}
                 <DropdownMenu>
