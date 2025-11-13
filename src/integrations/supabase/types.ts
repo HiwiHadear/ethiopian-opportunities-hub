@@ -211,6 +211,69 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_log: {
+        Row: {
+          application_id: string
+          application_type: string
+          created_at: string
+          id: string
+          notification_type: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          application_type: string
+          created_at?: string
+          id?: string
+          notification_type: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          application_type?: string
+          created_at?: string
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          digest_frequency: string
+          digest_time: string
+          email_on_new_application: boolean
+          id: string
+          last_digest_sent_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          digest_frequency?: string
+          digest_time?: string
+          email_on_new_application?: boolean
+          id?: string
+          last_digest_sent_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          digest_frequency?: string
+          digest_time?: string
+          email_on_new_application?: boolean
+          id?: string
+          last_digest_sent_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
