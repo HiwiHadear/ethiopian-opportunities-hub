@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
+import NotificationSettings from '@/components/admin/NotificationSettings';
 
 const AdminSettings = () => {
   const { toast } = useToast();
@@ -321,88 +322,7 @@ const AdminSettings = () => {
 
         {/* Notification Settings */}
         <TabsContent value="notifications" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Manage how you receive notifications and alerts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications via email
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.emailNotifications}
-                    onCheckedChange={(checked) => setNotificationSettings({ ...notificationSettings, emailNotifications: checked })}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>New Job Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified when new jobs are posted
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.newJobAlerts}
-                    onCheckedChange={(checked) => setNotificationSettings({ ...notificationSettings, newJobAlerts: checked })}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>New Tender Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified when new tenders are posted
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.newTenderAlerts}
-                    onCheckedChange={(checked) => setNotificationSettings({ ...notificationSettings, newTenderAlerts: checked })}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Application Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about job and tender application updates
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.applicationUpdates}
-                    onCheckedChange={(checked) => setNotificationSettings({ ...notificationSettings, applicationUpdates: checked })}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>System Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications about system maintenance and updates
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notificationSettings.systemUpdates}
-                    onCheckedChange={(checked) => setNotificationSettings({ ...notificationSettings, systemUpdates: checked })}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <Button onClick={handleNotificationSettingsUpdate} disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <NotificationSettings />
         </TabsContent>
 
         {/* Security Settings */}

@@ -61,6 +61,19 @@ const NotificationBell = () => {
 
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(prev => prev + 1);
+
+            // Trigger email notification
+            fetch('https://qzjfbqirbxsqdwcbpsst.supabase.co/functions/v1/send-application-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                applicationType: 'job',
+                applicationId: payload.new.id,
+                applicantName: payload.new.full_name || payload.new.email,
+                title: jobData.title,
+                appliedAt: payload.new.applied_at,
+              }),
+            }).catch(err => console.error('Failed to send notification:', err));
           }
         }
       )
@@ -98,6 +111,19 @@ const NotificationBell = () => {
 
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(prev => prev + 1);
+
+            // Trigger email notification
+            fetch('https://qzjfbqirbxsqdwcbpsst.supabase.co/functions/v1/send-application-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                applicationType: 'tender',
+                applicationId: payload.new.id,
+                applicantName: payload.new.company_name || payload.new.company_email,
+                title: tenderData.title,
+                appliedAt: payload.new.applied_at,
+              }),
+            }).catch(err => console.error('Failed to send notification:', err));
           }
         }
       )
