@@ -90,6 +90,12 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Fetch email branding
+    const { data: branding } = await supabaseClient
+      .from('email_branding')
+      .select('*')
+      .single();
+
     // Send emails to each admin
     const emailPromises = usersToNotify.map(async (user) => {
       try {
@@ -103,6 +109,7 @@ const handler = async (req: Request): Promise<Response> => {
           title,
           appliedAt,
           dashboardUrl,
+          branding: branding || undefined,
         });
         
         const { data, error } = await resend.emails.send({

@@ -1,5 +1,18 @@
 // Shared email styling and branding
-export const emailStyles = {
+export interface EmailBranding {
+  logo_url?: string;
+  primary_color: string;
+  secondary_color: string;
+  company_name: string;
+  company_website?: string;
+  support_email?: string;
+}
+
+export const getEmailStyles = (branding?: EmailBranding) => {
+  const primaryColor = branding?.primary_color || '#667eea';
+  const secondaryColor = branding?.secondary_color || '#764ba2';
+  
+  return {
   main: `
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     background-color: #f6f9fc;
@@ -15,7 +28,7 @@ export const emailStyles = {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   `,
   header: `
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     padding: 40px 30px;
     text-align: center;
   `,
@@ -42,7 +55,7 @@ export const emailStyles = {
   `,
   card: `
     background-color: #f8f9fa;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid ${primaryColor};
     padding: 20px;
     border-radius: 4px;
     margin: 20px 0;
@@ -68,7 +81,7 @@ export const emailStyles = {
   `,
   button: `
     display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: #ffffff;
     padding: 14px 32px;
     text-decoration: none;
@@ -76,7 +89,7 @@ export const emailStyles = {
     font-weight: 600;
     font-size: 16px;
     margin: 20px 0;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px ${primaryColor}4D;
   `,
   statusBadge: (status: string) => {
     const colors: Record<string, string> = {
@@ -113,13 +126,13 @@ export const emailStyles = {
     margin: 20px 0;
   `,
   statsBox: `
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: white;
     padding: 30px;
     border-radius: 8px;
     text-align: center;
     margin: 30px 0;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px ${primaryColor}4D;
   `,
   statsNumber: `
     font-size: 48px;
@@ -145,6 +158,7 @@ export const emailStyles = {
     margin-bottom: 12px;
     border: 1px solid #e5e7eb;
   `,
+  };
 };
 
 export interface InstantNotificationData {
@@ -154,10 +168,13 @@ export interface InstantNotificationData {
   title: string;
   appliedAt: string;
   dashboardUrl: string;
+  branding?: EmailBranding;
 }
 
 export function generateInstantNotificationEmail(data: InstantNotificationData): string {
   const applicationTypeLabel = data.applicationType === 'job' ? 'Job' : 'Tender';
+  const emailStyles = getEmailStyles(data.branding);
+  const companyName = data.branding?.company_name || 'Your Company';
   
   return `
     <!DOCTYPE html>
@@ -171,6 +188,9 @@ export function generateInstantNotificationEmail(data: InstantNotificationData):
         <div style="padding: 40px 20px;">
           <div style="${emailStyles.container}">
             <div style="${emailStyles.header}">
+              ${data.branding?.logo_url ? `
+                <img src="${data.branding.logo_url}" alt="${companyName}" style="height: 48px; width: auto; margin-bottom: 16px;" />
+              ` : ''}
               <h1 style="${emailStyles.headerTitle}">🎉 New Application Received!</h1>
             </div>
             
@@ -226,6 +246,16 @@ export function generateInstantNotificationEmail(data: InstantNotificationData):
               <p style="${emailStyles.footerText}">
                 Want to change your notification preferences? Update them in your admin settings.
               </p>
+              ${data.branding?.support_email ? `
+                <p style="${emailStyles.footerText}">
+                  Need help? Contact us at ${data.branding.support_email}
+                </p>
+              ` : ''}
+              ${data.branding?.company_website ? `
+                <p style="${emailStyles.footerText}">
+                  <a href="${data.branding.company_website}" style="color: #9ca3af; text-decoration: underline;">Visit our website</a>
+                </p>
+              ` : ''}
             </div>
           </div>
         </div>
@@ -259,11 +289,14 @@ export interface DigestData {
     };
   }>;
   dashboardUrl: string;
+  branding?: EmailBranding;
 }
 
 export function generateDigestEmail(data: DigestData): string {
   const periodLabel = data.frequency === 'daily' ? 'Daily' : 'Weekly';
   const timePeriod = data.frequency === 'daily' ? '24 hours' : '7 days';
+  const emailStyles = getEmailStyles(data.branding);
+  const companyName = data.branding?.company_name || 'Your Company';
   
   let applicationsHTML = '';
   
@@ -361,6 +394,9 @@ export function generateDigestEmail(data: DigestData): string {
         <div style="padding: 40px 20px;">
           <div style="${emailStyles.container}">
             <div style="${emailStyles.header}">
+              ${data.branding?.logo_url ? `
+                <img src="${data.branding.logo_url}" alt="${companyName}" style="height: 48px; width: auto; margin-bottom: 16px;" />
+              ` : ''}
               <h1 style="${emailStyles.headerTitle}">📊 ${periodLabel} Application Digest</h1>
             </div>
             
@@ -398,6 +434,16 @@ export function generateDigestEmail(data: DigestData): string {
               <p style="${emailStyles.footerText}">
                 Want to change how often you receive these? Update your preferences in the admin settings.
               </p>
+              ${data.branding?.support_email ? `
+                <p style="${emailStyles.footerText}">
+                  Need help? Contact us at ${data.branding.support_email}
+                </p>
+              ` : ''}
+              ${data.branding?.company_website ? `
+                <p style="${emailStyles.footerText}">
+                  <a href="${data.branding.company_website}" style="color: #9ca3af; text-decoration: underline;">Visit our website</a>
+                </p>
+              ` : ''}
             </div>
           </div>
         </div>

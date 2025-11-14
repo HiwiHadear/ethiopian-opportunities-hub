@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 import NotificationSettings from '@/components/admin/NotificationSettings';
+import { EmailBrandingSettings } from '@/components/admin/EmailBrandingSettings';
 
 const AdminSettings = () => {
   const { toast } = useToast();
@@ -130,7 +131,7 @@ const AdminSettings = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+        <TabsList className="grid w-full grid-cols-5 lg:w-[750px]">
           <TabsTrigger value="profile">
             <User className="w-4 h-4 mr-2" />
             Profile
@@ -142,6 +143,10 @@ const AdminSettings = () => {
           <TabsTrigger value="notifications">
             <Bell className="w-4 h-4 mr-2" />
             Notifications
+          </TabsTrigger>
+          <TabsTrigger value="branding">
+            <Mail className="w-4 h-4 mr-2" />
+            Email
           </TabsTrigger>
           <TabsTrigger value="security">
             <Shield className="w-4 h-4 mr-2" />
@@ -323,6 +328,11 @@ const AdminSettings = () => {
         {/* Notification Settings */}
         <TabsContent value="notifications" className="space-y-4">
           <NotificationSettings />
+        </TabsContent>
+
+        {/* Email Branding Settings */}
+        <TabsContent value="branding" className="space-y-4">
+          <EmailBrandingSettings />
         </TabsContent>
 
         {/* Security Settings */}
