@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0";
 import { Resend } from "npm:resend@2.0.0";
+import { generateInstantNotificationEmail } from "../_shared/email-templates.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -93,32 +94,22 @@ const handler = async (req: Request): Promise<Response> => {
     const emailPromises = usersToNotify.map(async (user) => {
       try {
         const applicationTypeLabel = applicationType === 'job' ? 'Job' : 'Tender';
+        const dashboardUrl = `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '')}/admin`;
+        
+        const emailHtml = generateInstantNotificationEmail({
+          recipientName: user.full_name || 'Admin',
+          applicantName,
+          applicationType,
+          title,
+          appliedAt,
+          dashboardUrl,
+        });
         
         const { data, error } = await resend.emails.send({
-          from: "Applications <onboarding@resend.dev>",
+          from: "Application Notifications <onboarding@resend.dev>",
           to: [user.email],
-          subject: `New ${applicationTypeLabel} Application Received`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">New ${applicationTypeLabel} Application</h2>
-              <p>Hello ${user.full_name || 'Admin'},</p>
-              <p>A new application has been received:</p>
-              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 5px 0;"><strong>Applicant:</strong> ${applicantName}</p>
-                <p style="margin: 5px 0;"><strong>${applicationTypeLabel}:</strong> ${title}</p>
-                <p style="margin: 5px 0;"><strong>Applied:</strong> ${new Date(appliedAt).toLocaleString()}</p>
-              </div>
-              <p>
-                <a href="https://lovable.app" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                  View in Dashboard
-                </a>
-              </p>
-              <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                You're receiving this email because you have instant notifications enabled. 
-                You can change your notification preferences in the admin settings.
-              </p>
-            </div>
-          `,
+          subject: `🎉 New ${applicationTypeLabel} Application - ${applicantName}`,
+          html: emailHtml,
         });
 
         if (error) {
