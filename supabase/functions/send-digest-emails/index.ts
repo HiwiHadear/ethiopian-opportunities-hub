@@ -101,6 +101,12 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Fetch email branding
+    const { data: branding } = await supabaseClient
+      .from('email_branding')
+      .select('*')
+      .single();
+
     // Send digest emails
     const emailPromises = preferences.map(async (pref) => {
       try {
@@ -114,6 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
           jobApplications,
           tenderApplications,
           dashboardUrl,
+          branding: branding || undefined,
         });
 
         const { data, error } = await resend.emails.send({
