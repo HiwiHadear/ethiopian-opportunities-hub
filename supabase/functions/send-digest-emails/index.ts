@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0";
 import { Resend } from "npm:resend@2.0.0";
+import { generateDigestEmail } from "../_shared/email-templates.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -104,93 +105,22 @@ const handler = async (req: Request): Promise<Response> => {
     const emailPromises = preferences.map(async (pref) => {
       try {
         const profile = pref.profiles;
+        const dashboardUrl = `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '')}/admin`;
         
-        // Generate application summary HTML
-        let applicationsHTML = '';
-        
-        if (jobApplications && jobApplications.length > 0) {
-          applicationsHTML += `
-            <h3 style="color: #333; margin-top: 20px;">Job Applications (${jobApplications.length})</h3>
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-          `;
-          
-          jobApplications.slice(0, 10).forEach(app => {
-            applicationsHTML += `
-              <div style="border-bottom: 1px solid #e5e5e5; padding: 10px 0;">
-                <p style="margin: 3px 0;"><strong>${app.full_name || app.email}</strong> applied for <strong>${app.jobs.title}</strong></p>
-                <p style="margin: 3px 0; font-size: 12px; color: #666;">
-                  ${app.jobs.company} • ${new Date(app.applied_at).toLocaleDateString()} • 
-                  <span style="color: ${app.status === 'pending' ? '#f59e0b' : app.status === 'accepted' ? '#10b981' : '#ef4444'}">
-                    ${app.status}
-                  </span>
-                </p>
-              </div>
-            `;
-          });
-          
-          if (jobApplications.length > 10) {
-            applicationsHTML += `<p style="color: #666; margin-top: 10px;">And ${jobApplications.length - 10} more...</p>`;
-          }
-          
-          applicationsHTML += `</div>`;
-        }
-        
-        if (tenderApplications && tenderApplications.length > 0) {
-          applicationsHTML += `
-            <h3 style="color: #333; margin-top: 20px;">Tender Applications (${tenderApplications.length})</h3>
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px;">
-          `;
-          
-          tenderApplications.slice(0, 10).forEach(app => {
-            applicationsHTML += `
-              <div style="border-bottom: 1px solid #e5e5e5; padding: 10px 0;">
-                <p style="margin: 3px 0;"><strong>${app.company_name || app.company_email}</strong> applied for <strong>${app.tenders.title}</strong></p>
-                <p style="margin: 3px 0; font-size: 12px; color: #666;">
-                  ${app.tenders.organization} • ${new Date(app.applied_at).toLocaleDateString()} • 
-                  <span style="color: ${app.status === 'pending' ? '#f59e0b' : app.status === 'accepted' ? '#10b981' : '#ef4444'}">
-                    ${app.status}
-                  </span>
-                </p>
-              </div>
-            `;
-          });
-          
-          if (tenderApplications.length > 10) {
-            applicationsHTML += `<p style="color: #666; margin-top: 10px;">And ${tenderApplications.length - 10} more...</p>`;
-          }
-          
-          applicationsHTML += `</div>`;
-        }
+        const emailHtml = generateDigestEmail({
+          recipientName: profile.full_name || 'Admin',
+          frequency,
+          totalApplications,
+          jobApplications,
+          tenderApplications,
+          dashboardUrl,
+        });
 
         const { data, error } = await resend.emails.send({
           from: "Application Digest <onboarding@resend.dev>",
           to: [profile.email],
-          subject: `${frequency === 'daily' ? 'Daily' : 'Weekly'} Application Digest - ${totalApplications} New Applications`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
-              <h2 style="color: #333;">Your ${frequency === 'daily' ? 'Daily' : 'Weekly'} Application Digest</h2>
-              <p>Hello ${profile.full_name || 'Admin'},</p>
-              <p>Here's a summary of new applications received in the last ${frequency === 'daily' ? '24 hours' : '7 days'}:</p>
-              
-              <div style="background-color: #4F46E5; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <h1 style="margin: 0; font-size: 48px;">${totalApplications}</h1>
-                <p style="margin: 10px 0 0 0; font-size: 18px;">New Applications</p>
-              </div>
-
-              ${applicationsHTML}
-
-              <p style="margin-top: 30px;">
-                <a href="https://lovable.app" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                  View All in Dashboard
-                </a>
-              </p>
-              
-              <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                You're receiving this ${frequency} digest because of your notification preferences. 
-                You can change these settings in the admin dashboard.
-              </p>
-            </div>
-          `,
+          subject: `📊 ${frequency === 'daily' ? 'Daily' : 'Weekly'} Application Digest - ${totalApplications} New Application${totalApplications !== 1 ? 's' : ''}`,
+          html: emailHtml,
         });
 
         if (error) {
