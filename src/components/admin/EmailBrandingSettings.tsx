@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Eye } from "lucide-react";
+import { generateInstantNotificationEmail, generateDigestEmail } from "../../../supabase/functions/_shared/email-templates";
 
 export const EmailBrandingSettings = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [branding, setBranding] = useState({
     id: "",
     company_name: "Your Company",
@@ -142,150 +145,261 @@ export const EmailBrandingSettings = () => {
     }
   };
 
+  const getPreviewBranding = () => ({
+    logo_url: branding.logo_url || undefined,
+    primary_color: branding.primary_color,
+    secondary_color: branding.secondary_color,
+    company_name: branding.company_name,
+    company_website: branding.company_website || undefined,
+    support_email: branding.support_email || undefined,
+  });
+
+  const instantNotificationPreview = generateInstantNotificationEmail({
+    recipientName: "Admin User",
+    applicantName: "Jane Doe",
+    applicationType: "job",
+    title: "Senior Software Engineer",
+    appliedAt: new Date().toISOString(),
+    dashboardUrl: window.location.origin + "/admin",
+    branding: getPreviewBranding(),
+  });
+
+  const digestPreview = generateDigestEmail({
+    recipientName: "Admin User",
+    frequency: "daily",
+    totalApplications: 5,
+    jobApplications: [
+      {
+        full_name: "Jane Doe",
+        email: "jane@example.com",
+        applied_at: new Date().toISOString(),
+        status: "pending",
+        jobs: {
+          title: "Senior Software Engineer",
+          company: "Tech Corp",
+        },
+      },
+      {
+        full_name: "John Smith",
+        email: "john@example.com",
+        applied_at: new Date(Date.now() - 3600000).toISOString(),
+        status: "pending",
+        jobs: {
+          title: "Product Manager",
+          company: "Startup Inc",
+        },
+      },
+    ],
+    tenderApplications: [
+      {
+        company_name: "BuildCo Ltd",
+        company_email: "contact@buildco.com",
+        applied_at: new Date(Date.now() - 7200000).toISOString(),
+        status: "pending",
+        tenders: {
+          title: "Road Construction Project",
+          organization: "City Council",
+        },
+      },
+    ],
+    dashboardUrl: window.location.origin + "/admin",
+    branding: getPreviewBranding(),
+  });
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Email Branding</CardTitle>
-        <CardDescription>
-          Customize the appearance of email notifications sent to admins and users
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Logo Upload */}
-        <div className="space-y-2">
-          <Label htmlFor="logo">Company Logo</Label>
-          <div className="flex items-center gap-4">
-            {branding.logo_url && (
-              <img
-                src={branding.logo_url}
-                alt="Company logo"
-                className="h-16 w-auto object-contain border rounded-md p-2"
-              />
-            )}
-            <div className="flex-1">
-              <Input
-                id="logo"
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                disabled={uploading}
-                className="cursor-pointer"
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                Recommended: PNG or JPG, max 2MB
-              </p>
-            </div>
-            {uploading && <Loader2 className="h-5 w-5 animate-spin" />}
-          </div>
-        </div>
-
-        {/* Company Details */}
-        <div className="space-y-2">
-          <Label htmlFor="company_name">Company Name</Label>
-          <Input
-            id="company_name"
-            value={branding.company_name}
-            onChange={(e) => setBranding({ ...branding, company_name: e.target.value })}
-            placeholder="Your Company"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="company_website">Company Website (Optional)</Label>
-          <Input
-            id="company_website"
-            type="url"
-            value={branding.company_website || ""}
-            onChange={(e) => setBranding({ ...branding, company_website: e.target.value })}
-            placeholder="https://yourcompany.com"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="support_email">Support Email (Optional)</Label>
-          <Input
-            id="support_email"
-            type="email"
-            value={branding.support_email || ""}
-            onChange={(e) => setBranding({ ...branding, support_email: e.target.value })}
-            placeholder="support@yourcompany.com"
-          />
-        </div>
-
-        {/* Color Customization */}
-        <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Email Branding</CardTitle>
+          <CardDescription>
+            Customize the appearance of email notifications sent to admins and users
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Logo Upload */}
           <div className="space-y-2">
-            <Label htmlFor="primary_color">Primary Color</Label>
-            <div className="flex gap-2">
-              <Input
-                id="primary_color"
-                type="color"
-                value={branding.primary_color}
-                onChange={(e) => setBranding({ ...branding, primary_color: e.target.value })}
-                className="w-20 h-10"
-              />
-              <Input
-                value={branding.primary_color}
-                onChange={(e) => setBranding({ ...branding, primary_color: e.target.value })}
-                placeholder="#667eea"
-                className="flex-1"
-              />
+            <Label htmlFor="logo">Company Logo</Label>
+            <div className="flex items-center gap-4">
+              {branding.logo_url && (
+                <img
+                  src={branding.logo_url}
+                  alt="Company logo"
+                  className="h-16 w-auto object-contain border rounded-md p-2"
+                />
+              )}
+              <div className="flex-1">
+                <Input
+                  id="logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  disabled={uploading}
+                  className="cursor-pointer"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Recommended: PNG or JPG, max 2MB
+                </p>
+              </div>
+              {uploading && <Loader2 className="h-5 w-5 animate-spin" />}
             </div>
+          </div>
+
+          {/* Company Details */}
+          <div className="space-y-2">
+            <Label htmlFor="company_name">Company Name</Label>
+            <Input
+              id="company_name"
+              value={branding.company_name}
+              onChange={(e) => setBranding({ ...branding, company_name: e.target.value })}
+              placeholder="Your Company"
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="secondary_color">Secondary Color</Label>
-            <div className="flex gap-2">
-              <Input
-                id="secondary_color"
-                type="color"
-                value={branding.secondary_color}
-                onChange={(e) => setBranding({ ...branding, secondary_color: e.target.value })}
-                className="w-20 h-10"
-              />
-              <Input
-                value={branding.secondary_color}
-                onChange={(e) => setBranding({ ...branding, secondary_color: e.target.value })}
-                placeholder="#764ba2"
-                className="flex-1"
-              />
+            <Label htmlFor="company_website">Company Website (Optional)</Label>
+            <Input
+              id="company_website"
+              type="url"
+              value={branding.company_website || ""}
+              onChange={(e) => setBranding({ ...branding, company_website: e.target.value })}
+              placeholder="https://yourcompany.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="support_email">Support Email (Optional)</Label>
+            <Input
+              id="support_email"
+              type="email"
+              value={branding.support_email || ""}
+              onChange={(e) => setBranding({ ...branding, support_email: e.target.value })}
+              placeholder="support@yourcompany.com"
+            />
+          </div>
+
+          {/* Color Customization */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="primary_color">Primary Color</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="primary_color"
+                  type="color"
+                  value={branding.primary_color}
+                  onChange={(e) => setBranding({ ...branding, primary_color: e.target.value })}
+                  className="w-20 h-10"
+                />
+                <Input
+                  value={branding.primary_color}
+                  onChange={(e) => setBranding({ ...branding, primary_color: e.target.value })}
+                  placeholder="#667eea"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="secondary_color">Secondary Color</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="secondary_color"
+                  type="color"
+                  value={branding.secondary_color}
+                  onChange={(e) => setBranding({ ...branding, secondary_color: e.target.value })}
+                  className="w-20 h-10"
+                />
+                <Input
+                  value={branding.secondary_color}
+                  onChange={(e) => setBranding({ ...branding, secondary_color: e.target.value })}
+                  placeholder="#764ba2"
+                  className="flex-1"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Preview */}
-        <div className="space-y-2">
-          <Label>Email Header Preview</Label>
-          <div
-            className="rounded-lg p-8 text-center"
-            style={{
-              background: `linear-gradient(135deg, ${branding.primary_color} 0%, ${branding.secondary_color} 100%)`,
-            }}
-          >
-            {branding.logo_url && (
-              <img
-                src={branding.logo_url}
-                alt="Logo preview"
-                className="h-12 w-auto mx-auto mb-4 bg-white/10 rounded p-2"
-              />
-            )}
-            <h2 className="text-2xl font-bold text-white">
-              {branding.company_name}
-            </h2>
+          {/* Preview */}
+          <div className="space-y-2">
+            <Label>Email Header Preview</Label>
+            <div
+              className="rounded-lg p-8 text-center"
+              style={{
+                background: `linear-gradient(135deg, ${branding.primary_color} 0%, ${branding.secondary_color} 100%)`,
+              }}
+            >
+              {branding.logo_url && (
+                <img
+                  src={branding.logo_url}
+                  alt="Logo preview"
+                  className="h-12 w-auto mx-auto mb-4 bg-white/10 rounded p-2"
+                />
+              )}
+              <h2 className="text-2xl font-bold text-white">
+                {branding.company_name}
+              </h2>
+            </div>
           </div>
-        </div>
 
-        <Button onClick={handleSave} disabled={loading} className="w-full">
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            "Save Branding Settings"
-          )}
-        </Button>
-      </CardContent>
-    </Card>
+          <div className="flex gap-2">
+            <Button onClick={handleSave} disabled={loading} className="flex-1">
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Branding Settings"
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              {showPreview ? "Hide" : "Show"} Preview
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {showPreview && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Email Preview</CardTitle>
+            <CardDescription>
+              See how your notification emails will look with the current branding
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="instant" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="instant">Instant Notification</TabsTrigger>
+                <TabsTrigger value="digest">Daily/Weekly Digest</TabsTrigger>
+              </TabsList>
+              <TabsContent value="instant" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={instantNotificationPreview}
+                    className="w-full h-[600px]"
+                    title="Instant Notification Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="digest" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={digestPreview}
+                    className="w-full h-[600px]"
+                    title="Digest Email Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };

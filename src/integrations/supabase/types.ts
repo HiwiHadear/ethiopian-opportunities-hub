@@ -104,6 +104,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_branding: {
+        Row: {
+          company_name: string
+          company_website: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          primary_color: string
+          secondary_color: string
+          support_email: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          support_email?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          support_email?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           admin_notes: string | null
