@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.send-digest-emails]
 verify_jwt = false
+
+[functions.send-status-update]
+verify_jwt = false
