@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, CheckCircle, XCircle, Clock, Search, Filter, FileText, User } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Clock, Search, Filter, FileText, User, Mail, Send, Loader2, Calendar, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
+type ApplicationStatus = 'accepted' | 'rejected' | 'under_review' | 'shortlisted' | 'interview_scheduled';
 
 const JobApplicationManagement = () => {
   const { toast } = useToast();
@@ -21,6 +24,16 @@ const JobApplicationManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [adminNotes, setAdminNotes] = useState('');
+  
+  // Email dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<ApplicationStatus>('accepted');
+  const [sendEmail, setSendEmail] = useState(true);
+  const [customMessage, setCustomMessage] = useState('');
+  const [nextSteps, setNextSteps] = useState('');
+  const [interviewDate, setInterviewDate] = useState('');
+  const [interviewLocation, setInterviewLocation] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -51,6 +64,92 @@ const JobApplicationManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEmailDialog = (status: ApplicationStatus) => {
+    setEmailStatus(status);
+    setSendEmail(true);
+    setCustomMessage('');
+    setNextSteps('');
+    setInterviewDate('');
+    setInterviewLocation('');
+    setEmailDialogOpen(true);
+  };
+
+  const handleStatusChangeWithEmail = async () => {
+    if (!selectedApplication) return;
+    
+    setSendingEmail(true);
+    
+    try {
+      // Update the status in the database
+      const { error: updateError } = await supabase
+        .from('job_applications')
+        .update({
+          status: emailStatus,
+          reviewed_at: new Date().toISOString(),
+          admin_notes: adminNotes || null
+        })
+        .eq('id', selectedApplication.id);
+
+      if (updateError) throw updateError;
+
+      // Send email if checkbox is checked
+      if (sendEmail) {
+        const { error: emailError } = await supabase.functions.invoke('send-status-update', {
+          body: {
+            applicationType: 'job',
+            applicationId: selectedApplication.id,
+            newStatus: emailStatus,
+            customMessage: customMessage || undefined,
+            nextSteps: nextSteps ? nextSteps.split('\n').filter(s => s.trim()) : undefined,
+            interviewDate: interviewDate || undefined,
+            interviewLocation: interviewLocation || undefined,
+          }
+        });
+
+        if (emailError) {
+          console.error('Email error:', emailError);
+          toast({
+            title: "Status Updated",
+            description: `Status changed to ${emailStatus}, but email failed to send.`,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Status Updated & Email Sent",
+            description: `Application status changed to ${emailStatus} and notification email sent.`,
+          });
+        }
+      } else {
+        toast({
+          title: "Status Updated",
+          description: `Application status changed to ${emailStatus}`,
+        });
+      }
+
+      // Update local state
+      setApplications(prev =>
+        prev.map(app =>
+          app.id === selectedApplication.id
+            ? { ...app, status: emailStatus, reviewed_at: new Date().toISOString(), admin_notes: adminNotes }
+            : app
+        )
+      );
+
+      setEmailDialogOpen(false);
+      setDetailsOpen(false);
+      setAdminNotes('');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update application status",
+        variant: "destructive"
+      });
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -298,9 +397,9 @@ const JobApplicationManagement = () => {
                   />
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t">
+                <div className="flex flex-wrap gap-3 pt-4 border-t">
                   <Button
-                    onClick={() => handleStatusChange(selectedApplication.id, 'accepted')}
+                    onClick={() => openEmailDialog('accepted')}
                     className="bg-green-600 hover:bg-green-700"
                     disabled={selectedApplication.status === 'accepted'}
                   >
@@ -308,12 +407,28 @@ const JobApplicationManagement = () => {
                     Accept
                   </Button>
                   <Button
-                    onClick={() => handleStatusChange(selectedApplication.id, 'rejected')}
+                    onClick={() => openEmailDialog('rejected')}
                     variant="destructive"
                     disabled={selectedApplication.status === 'rejected'}
                   >
                     <XCircle className="w-4 h-4 mr-2" />
                     Reject
+                  </Button>
+                  <Button
+                    onClick={() => openEmailDialog('shortlisted')}
+                    className="bg-amber-600 hover:bg-amber-700"
+                    disabled={selectedApplication.status === 'shortlisted'}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Shortlist
+                  </Button>
+                  <Button
+                    onClick={() => openEmailDialog('interview_scheduled')}
+                    className="bg-purple-600 hover:bg-purple-700"
+                    disabled={selectedApplication.status === 'interview_scheduled'}
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule Interview
                   </Button>
                   <Button
                     onClick={() => handleStatusChange(selectedApplication.id, 'reviewed')}
@@ -329,6 +444,122 @@ const JobApplicationManagement = () => {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Email Confirmation Dialog */}
+        <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                {emailStatus === 'accepted' && 'Accept Application'}
+                {emailStatus === 'rejected' && 'Reject Application'}
+                {emailStatus === 'shortlisted' && 'Shortlist Application'}
+                {emailStatus === 'interview_scheduled' && 'Schedule Interview'}
+                {emailStatus === 'under_review' && 'Mark Under Review'}
+              </DialogTitle>
+              <DialogDescription>
+                Update application status and optionally send an email notification to the applicant.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="sendEmail" 
+                  checked={sendEmail} 
+                  onCheckedChange={(checked) => setSendEmail(checked as boolean)} 
+                />
+                <Label htmlFor="sendEmail" className="text-sm font-medium cursor-pointer">
+                  Send email notification to applicant
+                </Label>
+              </div>
+
+              {sendEmail && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="customMessage">Custom Message (Optional)</Label>
+                    <Textarea
+                      id="customMessage"
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      placeholder="Add a personalized message to include in the email..."
+                      className="min-h-[80px]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nextSteps">Next Steps (Optional, one per line)</Label>
+                    <Textarea
+                      id="nextSteps"
+                      value={nextSteps}
+                      onChange={(e) => setNextSteps(e.target.value)}
+                      placeholder="Enter each next step on a new line..."
+                      className="min-h-[80px]"
+                    />
+                  </div>
+
+                  {emailStatus === 'interview_scheduled' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="interviewDate" className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Interview Date & Time
+                        </Label>
+                        <Input
+                          id="interviewDate"
+                          value={interviewDate}
+                          onChange={(e) => setInterviewDate(e.target.value)}
+                          placeholder="e.g., Monday, January 15, 2024 at 10:00 AM"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="interviewLocation" className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Interview Location
+                        </Label>
+                        <Input
+                          id="interviewLocation"
+                          value={interviewLocation}
+                          onChange={(e) => setInterviewLocation(e.target.value)}
+                          placeholder="e.g., 123 Business St, Suite 400 or Video Call Link"
+                        />
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEmailDialogOpen(false)} disabled={sendingEmail}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleStatusChangeWithEmail} 
+                disabled={sendingEmail}
+                className={
+                  emailStatus === 'accepted' ? 'bg-green-600 hover:bg-green-700' :
+                  emailStatus === 'rejected' ? 'bg-red-600 hover:bg-red-700' :
+                  emailStatus === 'shortlisted' ? 'bg-amber-600 hover:bg-amber-700' :
+                  emailStatus === 'interview_scheduled' ? 'bg-purple-600 hover:bg-purple-700' :
+                  ''
+                }
+              >
+                {sendingEmail ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    {sendEmail ? 'Update & Send Email' : 'Update Status'}
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </CardContent>
