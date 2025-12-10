@@ -451,3 +451,251 @@ export function generateDigestEmail(data: DigestData): string {
     </html>
   `;
 }
+
+// ============= Status Update Email Templates =============
+
+export type ApplicationStatus = 'accepted' | 'rejected' | 'under_review' | 'shortlisted' | 'interview_scheduled';
+
+export interface StatusUpdateData {
+  recipientName: string;
+  recipientEmail: string;
+  applicationType: 'job' | 'tender';
+  title: string;
+  company: string;
+  status: ApplicationStatus;
+  message?: string;
+  nextSteps?: string[];
+  interviewDate?: string;
+  interviewLocation?: string;
+  contactEmail?: string;
+  branding?: EmailBranding;
+}
+
+const statusConfig: Record<ApplicationStatus, { 
+  emoji: string; 
+  title: string; 
+  color: string;
+  bgColor: string;
+}> = {
+  accepted: { 
+    emoji: '🎉', 
+    title: 'Congratulations! Your Application Was Accepted',
+    color: '#10b981',
+    bgColor: '#ecfdf5'
+  },
+  rejected: { 
+    emoji: '📝', 
+    title: 'Application Status Update',
+    color: '#6b7280',
+    bgColor: '#f9fafb'
+  },
+  under_review: { 
+    emoji: '🔍', 
+    title: 'Your Application Is Under Review',
+    color: '#3b82f6',
+    bgColor: '#eff6ff'
+  },
+  shortlisted: { 
+    emoji: '⭐', 
+    title: "Great News! You've Been Shortlisted",
+    color: '#f59e0b',
+    bgColor: '#fffbeb'
+  },
+  interview_scheduled: { 
+    emoji: '📅', 
+    title: 'Interview Scheduled',
+    color: '#8b5cf6',
+    bgColor: '#f5f3ff'
+  }
+};
+
+export function generateStatusUpdateEmail(data: StatusUpdateData): string {
+  const emailStyles = getEmailStyles(data.branding);
+  const companyName = data.branding?.company_name || 'Your Company';
+  const config = statusConfig[data.status];
+  const applicationTypeLabel = data.applicationType === 'job' ? 'job' : 'tender';
+  
+  const getStatusMessage = (): string => {
+    if (data.message) return data.message;
+    
+    switch (data.status) {
+      case 'accepted':
+        return `We are thrilled to inform you that your application for the <strong>${data.title}</strong> position at <strong>${data.company}</strong> has been accepted! We were impressed by your qualifications and believe you would be a great addition to our team.`;
+      case 'rejected':
+        return `Thank you for your interest in the <strong>${data.title}</strong> position at <strong>${data.company}</strong>. After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our current needs. We appreciate the time you invested in your application and encourage you to apply for future opportunities.`;
+      case 'under_review':
+        return `We wanted to let you know that your application for the <strong>${data.title}</strong> position at <strong>${data.company}</strong> is currently under review. Our team is carefully evaluating all applications, and we will be in touch soon with an update.`;
+      case 'shortlisted':
+        return `Great news! Your application for the <strong>${data.title}</strong> position at <strong>${data.company}</strong> has been shortlisted. You are among the top candidates we are considering, and we will be reaching out soon with next steps.`;
+      case 'interview_scheduled':
+        return `We are pleased to invite you for an interview for the <strong>${data.title}</strong> position at <strong>${data.company}</strong>. Please find the details below and confirm your attendance.`;
+      default:
+        return `There has been an update to your application for the <strong>${data.title}</strong> position at <strong>${data.company}</strong>.`;
+    }
+  };
+  
+  const getDefaultNextSteps = (): string[] => {
+    switch (data.status) {
+      case 'accepted':
+        return [
+          'You will receive onboarding information shortly',
+          'Prepare any required documentation',
+          'Feel free to reach out if you have any questions'
+        ];
+      case 'shortlisted':
+        return [
+          'We may contact you for an interview',
+          'Keep your contact information up to date',
+          'Prepare to discuss your experience and qualifications'
+        ];
+      case 'interview_scheduled':
+        return [
+          'Please confirm your attendance by replying to this email',
+          'Prepare any materials or portfolio items you wish to present',
+          'Arrive 10-15 minutes early'
+        ];
+      default:
+        return [];
+    }
+  };
+  
+  const nextSteps = data.nextSteps || getDefaultNextSteps();
+  
+  let nextStepsHTML = '';
+  if (nextSteps.length > 0) {
+    nextStepsHTML = `
+      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 25px 0;">
+        <h3 style="color: #333333; font-size: 16px; margin: 0 0 15px 0; font-weight: 600;">
+          📋 Next Steps
+        </h3>
+        <ul style="margin: 0; padding-left: 20px; color: #666666;">
+          ${nextSteps.map(step => `<li style="margin-bottom: 8px; line-height: 1.5;">${step}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+  
+  let interviewDetailsHTML = '';
+  if (data.status === 'interview_scheduled' && (data.interviewDate || data.interviewLocation)) {
+    interviewDetailsHTML = `
+      <div style="background-color: ${config.bgColor}; border-left: 4px solid ${config.color}; border-radius: 4px; padding: 20px; margin: 25px 0;">
+        <h3 style="color: #333333; font-size: 16px; margin: 0 0 15px 0; font-weight: 600;">
+          📅 Interview Details
+        </h3>
+        ${data.interviewDate ? `
+          <div style="margin-bottom: 10px;">
+            <span style="font-weight: 600; color: #333333;">Date & Time:</span>
+            <span style="color: #666666; margin-left: 8px;">${data.interviewDate}</span>
+          </div>
+        ` : ''}
+        ${data.interviewLocation ? `
+          <div>
+            <span style="font-weight: 600; color: #333333;">Location:</span>
+            <span style="color: #666666; margin-left: 8px;">${data.interviewLocation}</span>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${config.title}</title>
+      </head>
+      <body style="${emailStyles.main}">
+        <div style="padding: 40px 20px;">
+          <div style="${emailStyles.container}">
+            <div style="${emailStyles.header}">
+              ${data.branding?.logo_url ? `
+                <img src="${data.branding.logo_url}" alt="${companyName}" style="height: 48px; width: auto; margin-bottom: 16px;" />
+              ` : ''}
+              <h1 style="${emailStyles.headerTitle}">${config.emoji} ${config.title}</h1>
+            </div>
+            
+            <div style="${emailStyles.content}">
+              <p style="${emailStyles.greeting}">Dear ${data.recipientName},</p>
+              
+              <p style="${emailStyles.text}">
+                ${getStatusMessage()}
+              </p>
+              
+              <div style="background-color: ${config.bgColor}; border-left: 4px solid ${config.color}; border-radius: 4px; padding: 20px; margin: 25px 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 14px; color: #666666;">Application Status:</span>
+                  <span style="
+                    display: inline-block;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    background-color: ${config.color}22;
+                    color: ${config.color};
+                    text-transform: capitalize;
+                  ">${data.status.replace('_', ' ')}</span>
+                </div>
+              </div>
+              
+              ${interviewDetailsHTML}
+              
+              ${nextStepsHTML}
+              
+              ${data.contactEmail || data.branding?.support_email ? `
+                <p style="${emailStyles.text}">
+                  If you have any questions, please don't hesitate to contact us at 
+                  <a href="mailto:${data.contactEmail || data.branding?.support_email}" style="color: ${data.branding?.primary_color || '#667eea'};">
+                    ${data.contactEmail || data.branding?.support_email}
+                  </a>
+                </p>
+              ` : ''}
+              
+              <p style="${emailStyles.text}">
+                Thank you for your interest in joining ${data.company}. We wish you all the best${data.status === 'rejected' ? ' in your future endeavors' : ''}.
+              </p>
+              
+              <p style="color: #333333; margin: 30px 0 0 0;">
+                Best regards,<br/>
+                <strong>The ${data.company} Team</strong>
+              </p>
+            </div>
+            
+            <div style="${emailStyles.footer}">
+              <p style="${emailStyles.footerText}">
+                This email was sent regarding your ${applicationTypeLabel} application for ${data.title}.
+              </p>
+              ${data.branding?.company_website ? `
+                <p style="${emailStyles.footerText}">
+                  <a href="${data.branding.company_website}" style="color: #9ca3af; text-decoration: underline;">Visit our website</a>
+                </p>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+// Convenience functions for specific status emails
+export function generateAcceptedEmail(data: Omit<StatusUpdateData, 'status'>): string {
+  return generateStatusUpdateEmail({ ...data, status: 'accepted' });
+}
+
+export function generateRejectedEmail(data: Omit<StatusUpdateData, 'status'>): string {
+  return generateStatusUpdateEmail({ ...data, status: 'rejected' });
+}
+
+export function generateUnderReviewEmail(data: Omit<StatusUpdateData, 'status'>): string {
+  return generateStatusUpdateEmail({ ...data, status: 'under_review' });
+}
+
+export function generateShortlistedEmail(data: Omit<StatusUpdateData, 'status'>): string {
+  return generateStatusUpdateEmail({ ...data, status: 'shortlisted' });
+}
+
+export function generateInterviewScheduledEmail(data: Omit<StatusUpdateData, 'status'>): string {
+  return generateStatusUpdateEmail({ ...data, status: 'interview_scheduled' });
+}

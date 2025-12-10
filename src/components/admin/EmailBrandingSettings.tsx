@@ -7,7 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Loader2, Eye } from "lucide-react";
-import { generateInstantNotificationEmail, generateDigestEmail } from "../../../supabase/functions/_shared/email-templates";
+import { 
+  generateInstantNotificationEmail, 
+  generateDigestEmail,
+  generateStatusUpdateEmail,
+  type ApplicationStatus 
+} from "../../../supabase/functions/_shared/email-templates";
 
 export const EmailBrandingSettings = () => {
   const { toast } = useToast();
@@ -206,6 +211,51 @@ export const EmailBrandingSettings = () => {
     branding: getPreviewBranding(),
   });
 
+  const generateStatusPreview = (status: ApplicationStatus) => {
+    const baseData = {
+      recipientName: "Jane Doe",
+      recipientEmail: "jane@example.com",
+      applicationType: "job" as const,
+      title: "Senior Software Engineer",
+      company: branding.company_name || "Tech Corp",
+      branding: getPreviewBranding(),
+    };
+
+    const statusData: Record<ApplicationStatus, Partial<typeof baseData & { nextSteps: string[]; interviewDate: string; interviewLocation: string }>> = {
+      accepted: {
+        nextSteps: [
+          "You will receive onboarding information within 2-3 business days",
+          "Please prepare your identification documents",
+          "Your start date will be confirmed shortly"
+        ]
+      },
+      rejected: {},
+      under_review: {},
+      shortlisted: {
+        nextSteps: [
+          "We will contact you within the next 5 business days",
+          "Please keep your phone and email available",
+          "Prepare to discuss your experience in detail"
+        ]
+      },
+      interview_scheduled: {
+        interviewDate: "Monday, January 15, 2024 at 10:00 AM",
+        interviewLocation: "123 Business Street, Suite 400, City, Country (or Video Call Link)",
+        nextSteps: [
+          "Please confirm your attendance by replying to this email",
+          "Bring a copy of your resume and portfolio",
+          "Arrive 10 minutes early"
+        ]
+      }
+    };
+
+    return generateStatusUpdateEmail({
+      ...baseData,
+      status,
+      ...statusData[status]
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -372,9 +422,14 @@ export const EmailBrandingSettings = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="instant" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="instant">Instant Notification</TabsTrigger>
-                <TabsTrigger value="digest">Daily/Weekly Digest</TabsTrigger>
+              <TabsList className="flex flex-wrap h-auto gap-1">
+                <TabsTrigger value="instant" className="text-xs">New Application</TabsTrigger>
+                <TabsTrigger value="digest" className="text-xs">Digest</TabsTrigger>
+                <TabsTrigger value="accepted" className="text-xs">Accepted</TabsTrigger>
+                <TabsTrigger value="rejected" className="text-xs">Rejected</TabsTrigger>
+                <TabsTrigger value="under_review" className="text-xs">Under Review</TabsTrigger>
+                <TabsTrigger value="shortlisted" className="text-xs">Shortlisted</TabsTrigger>
+                <TabsTrigger value="interview" className="text-xs">Interview</TabsTrigger>
               </TabsList>
               <TabsContent value="instant" className="mt-4">
                 <div className="border rounded-lg overflow-hidden">
@@ -392,6 +447,56 @@ export const EmailBrandingSettings = () => {
                     srcDoc={digestPreview}
                     className="w-full h-[600px]"
                     title="Digest Email Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="accepted" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={generateStatusPreview("accepted")}
+                    className="w-full h-[600px]"
+                    title="Accepted Email Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="rejected" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={generateStatusPreview("rejected")}
+                    className="w-full h-[600px]"
+                    title="Rejected Email Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="under_review" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={generateStatusPreview("under_review")}
+                    className="w-full h-[600px]"
+                    title="Under Review Email Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="shortlisted" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={generateStatusPreview("shortlisted")}
+                    className="w-full h-[600px]"
+                    title="Shortlisted Email Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="interview" className="mt-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <iframe
+                    srcDoc={generateStatusPreview("interview_scheduled")}
+                    className="w-full h-[600px]"
+                    title="Interview Scheduled Email Preview"
                     sandbox="allow-same-origin"
                   />
                 </div>
