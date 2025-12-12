@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BookReader from "./pages/BookReader";
 import NotFound from "./pages/NotFound";
+import FloatingLanguageSwitcher from "./components/FloatingLanguageSwitcher";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <FloatingLanguageSwitcher />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
