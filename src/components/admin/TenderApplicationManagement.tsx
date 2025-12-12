@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, CheckCircle, XCircle, Clock, Search, FileText, Building2, DollarSign } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Clock, Search, FileText, Building2, DollarSign, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
+type EmailStatus = 'accepted' | 'rejected' | 'under_review' | 'shortlisted';
 
 const TenderApplicationManagement = () => {
   const { toast } = useToast();
@@ -21,6 +24,14 @@ const TenderApplicationManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [adminNotes, setAdminNotes] = useState('');
+  
+  // Email dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<EmailStatus>('accepted');
+  const [sendEmail, setSendEmail] = useState(true);
+  const [customMessage, setCustomMessage] = useState('');
+  const [nextSteps, setNextSteps] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -52,6 +63,101 @@ const TenderApplicationManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEmailDialog = (application: any, status: EmailStatus) => {
+    setSelectedApplication(application);
+    setEmailStatus(status);
+    setSendEmail(true);
+    setCustomMessage('');
+    setNextSteps('');
+    setEmailDialogOpen(true);
+  };
+
+  const handleStatusChangeWithEmail = async () => {
+    if (!selectedApplication) return;
+    
+    setSendingEmail(true);
+    
+    // Map email status to database status
+    const dbStatusMap: Record<EmailStatus, string> = {
+      accepted: 'accepted',
+      rejected: 'rejected',
+      under_review: 'reviewed',
+      shortlisted: 'reviewed',
+    };
+    
+    try {
+      // Update status in database
+      const { error } = await supabase
+        .from('tender_applications')
+        .update({
+          status: dbStatusMap[emailStatus],
+          reviewed_at: new Date().toISOString(),
+          admin_notes: adminNotes || null
+        })
+        .eq('id', selectedApplication.id);
+
+      if (error) throw error;
+
+      // Send email if enabled
+      if (sendEmail) {
+        const nextStepsArray = nextSteps
+          .split('\n')
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+
+        const { error: emailError } = await supabase.functions.invoke('send-status-update', {
+          body: {
+            applicationType: 'tender',
+            applicationId: selectedApplication.id,
+            newStatus: emailStatus,
+            customMessage: customMessage || undefined,
+            nextSteps: nextStepsArray.length > 0 ? nextStepsArray : undefined,
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending email:', emailError);
+          toast({
+            title: "Status Updated",
+            description: "Status was updated but email failed to send",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Status Updated & Email Sent",
+            description: `Application status changed to ${emailStatus} and notification email sent`,
+          });
+        }
+      } else {
+        toast({
+          title: "Status Updated",
+          description: `Application status changed to ${dbStatusMap[emailStatus]}`,
+        });
+      }
+
+      setApplications(prev =>
+        prev.map(app =>
+          app.id === selectedApplication.id
+            ? { ...app, status: dbStatusMap[emailStatus], reviewed_at: new Date().toISOString(), admin_notes: adminNotes }
+            : app
+        )
+      );
+
+      setEmailDialogOpen(false);
+      setDetailsOpen(false);
+      setAdminNotes('');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update application status",
+        variant: "destructive"
+      });
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -330,9 +436,9 @@ const TenderApplicationManagement = () => {
                   />
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t">
+                <div className="flex flex-wrap gap-3 pt-4 border-t">
                   <Button
-                    onClick={() => handleStatusChange(selectedApplication.id, 'accepted')}
+                    onClick={() => openEmailDialog(selectedApplication, 'accepted')}
                     className="bg-green-600 hover:bg-green-700"
                     disabled={selectedApplication.status === 'accepted'}
                   >
@@ -340,12 +446,20 @@ const TenderApplicationManagement = () => {
                     Accept Proposal
                   </Button>
                   <Button
-                    onClick={() => handleStatusChange(selectedApplication.id, 'rejected')}
+                    onClick={() => openEmailDialog(selectedApplication, 'rejected')}
                     variant="destructive"
                     disabled={selectedApplication.status === 'rejected'}
                   >
                     <XCircle className="w-4 h-4 mr-2" />
                     Reject Proposal
+                  </Button>
+                  <Button
+                    onClick={() => openEmailDialog(selectedApplication, 'shortlisted')}
+                    variant="secondary"
+                    disabled={selectedApplication.status === 'reviewed'}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Shortlist
                   </Button>
                   <Button
                     onClick={() => handleStatusChange(selectedApplication.id, 'reviewed')}
@@ -361,6 +475,77 @@ const TenderApplicationManagement = () => {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Email Confirmation Dialog */}
+        <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Send Status Update Email
+              </DialogTitle>
+              <DialogDescription>
+                Update the application status and optionally send an email notification to the applicant.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="sendEmail"
+                  checked={sendEmail}
+                  onCheckedChange={(checked) => setSendEmail(checked as boolean)}
+                />
+                <Label htmlFor="sendEmail" className="text-sm font-medium">
+                  Send email notification to applicant
+                </Label>
+              </div>
+
+              {sendEmail && (
+                <>
+                  <div>
+                    <Label htmlFor="customMessage" className="text-sm font-medium">
+                      Custom Message (optional)
+                    </Label>
+                    <Textarea
+                      id="customMessage"
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      placeholder="Add a personalized message for the applicant..."
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="nextSteps" className="text-sm font-medium">
+                      Next Steps (one per line, optional)
+                    </Label>
+                    <Textarea
+                      id="nextSteps"
+                      value={nextSteps}
+                      onChange={(e) => setNextSteps(e.target.value)}
+                      placeholder="Submit additional documents&#10;Wait for contract details&#10;Schedule a meeting"
+                      className="mt-1"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleStatusChangeWithEmail}
+                disabled={sendingEmail}
+                className={emailStatus === 'rejected' ? 'bg-destructive hover:bg-destructive/90' : ''}
+              >
+                {sendingEmail ? 'Processing...' : `Update to ${emailStatus.replace('_', ' ')}`}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </CardContent>
