@@ -1,0 +1,15 @@
+
+-- Insert sample Ethiopian companies
+INSERT INTO companies (name, industry, size, location, website, description, status) VALUES
+('Ethio Telecom', 'Telecommunications', '10000+', 'Addis Ababa', 'https://www.ethiotelecom.et', 'Ethiopia''s sole telecommunications provider offering mobile, internet, and fixed-line services to over 60 million subscribers nationwide.', 'approved'),
+('Ethiopian Airlines', 'Aviation', '10000+', 'Addis Ababa', 'https://www.ethiopianairlines.com', 'Africa''s largest and most profitable airline, operating the continent''s biggest network with over 130 international passenger and cargo destinations.', 'approved'),
+('Commercial Bank of Ethiopia', 'Banking & Finance', '10000+', 'Addis Ababa', 'https://www.combanketh.et', 'The largest commercial bank in Ethiopia with over 1,800 branches, serving millions of customers with comprehensive banking services.', 'approved'),
+('Dashen Bank', 'Banking & Finance', '5000-10000', 'Addis Ababa', 'https://www.dashenbanksc.com', 'One of Ethiopia''s leading private banks, providing innovative banking solutions including mobile banking and international services.', 'approved'),
+('Awash Bank', 'Banking & Finance', '5000-10000', 'Addis Ababa', 'https://www.awashbank.com', 'Pioneer private bank in Ethiopia established in 1994, offering diverse financial products and services across the country.', 'approved'),
+('Safaricom Ethiopia', 'Telecommunications', '1000-5000', 'Addis Ababa', 'https://www.safaricom.et', 'New telecom entrant bringing mobile money (M-Pesa) and innovative digital services to Ethiopia''s growing market.', 'approved'),
+('BGI Ethiopia', 'Manufacturing', '1000-5000', 'Addis Ababa', 'https://www.bgiethiopia.com', 'Leading beverage company producing popular beer brands including St. George, Castel, and Amber, serving Ethiopia since 1922.', 'approved'),
+('Habesha Breweries', 'Manufacturing', '500-1000', 'Debre Birhan', 'https://www.habeshabreweries.com', 'Modern brewery producing Habesha beer, a beloved Ethiopian brand known for its distinctive taste and quality.', 'approved'),
+('MIDROC Ethiopia', 'Diversified Conglomerate', '10000+', 'Addis Ababa', 'https://www.midroc-ethiopia.com.et', 'Major conglomerate with investments in gold mining, construction, agriculture, and manufacturing sectors.', 'approved'),
+('Ethiopian Electric Power', 'Energy & Utilities', '10000+', 'Addis Ababa', 'https://www.eep.gov.et', 'State utility responsible for power generation including the Grand Ethiopian Renaissance Dam, Africa''s largest hydroelectric project.', 'approved'),
+('Anbessa City Bus Service', 'Transportation', '1000-5000', 'Addis Ababa', NULL, 'The largest public transportation provider in Addis Ababa, operating city buses serving millions of daily commuters.', 'approved'),
+('Ethiopian Sugar Corporation', 'Agriculture', '10000+', 'Addis Ababa', 'https://www.etsugar.gov.et', 'Government corporation managing Ethiopia''s sugar industry with multiple large-scale sugar factories across the country.', 'approved');
