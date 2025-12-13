@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Search, Building2, MapPin, Users, Eye, Edit, Save, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Building2, MapPin, Users, Eye, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,78 +12,104 @@ import PostCompanyDialog from '@/components/PostCompanyDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+// Import company logos
+import ethioTelecomLogo from '@/assets/logos/ethio-telecom.png';
+import ethiopianAirlinesLogo from '@/assets/logos/ethiopian-airlines.png';
+import cbeLogo from '@/assets/logos/cbe.png';
+import dashenBankLogo from '@/assets/logos/dashen-bank.png';
+import awashBankLogo from '@/assets/logos/awash-bank.png';
+import safaricomLogo from '@/assets/logos/safaricom.png';
+import bgiEthiopiaLogo from '@/assets/logos/bgi-ethiopia.png';
+import habeshaBreweriesLogo from '@/assets/logos/habesha-breweries.png';
+import midrocLogo from '@/assets/logos/midroc.png';
+import eepLogo from '@/assets/logos/eep.png';
+import anbessaBusLogo from '@/assets/logos/anbessa-bus.png';
+import ethiopianSugarLogo from '@/assets/logos/ethiopian-sugar.png';
+
+// Logo mapping based on company name
+const logoMapping: Record<string, string> = {
+  'Ethio Telecom': ethioTelecomLogo,
+  'Ethiopian Airlines': ethiopianAirlinesLogo,
+  'Commercial Bank of Ethiopia': cbeLogo,
+  'Dashen Bank': dashenBankLogo,
+  'Awash Bank': awashBankLogo,
+  'Safaricom Ethiopia': safaricomLogo,
+  'BGI Ethiopia': bgiEthiopiaLogo,
+  'Habesha Breweries': habeshaBreweriesLogo,
+  'MIDROC Ethiopia': midrocLogo,
+  'Ethiopian Electric Power': eepLogo,
+  'Anbessa City Bus Service': anbessaBusLogo,
+  'Ethiopian Sugar Corporation': ethiopianSugarLogo,
+};
 
 const Companies = () => {
   const { user } = useAuth();
   const { isAdmin } = useProfile();
-  const [companies, setCompanies] = useState([
-    {
-      id: 1,
-      name: "Ethiopian Airlines",
-      industry: "Aviation",
-      location: "Addis Ababa, Ethiopia",
-      employees: "15,000+",
-      description: "Ethiopia's flag carrier and largest airline, serving destinations across Africa, Asia, Europe, and the Americas.",
-      verified: true,
-      activeJobs: 12,
-      activeTenders: 3
-    },
-    {
-      id: 2,
-      name: "Commercial Bank of Ethiopia",
-      industry: "Banking & Finance",
-      location: "Addis Ababa, Ethiopia",
-      employees: "40,000+",
-      description: "The largest commercial bank in Ethiopia, providing comprehensive banking services nationwide.",
-      verified: true,
-      activeJobs: 25,
-      activeTenders: 8
-    },
-    {
-      id: 3,
-      name: "Ethio Telecom",
-      industry: "Telecommunications",
-      location: "Addis Ababa, Ethiopia",
-      employees: "20,000+",
-      description: "Leading telecommunications service provider in Ethiopia, offering mobile, internet, and digital services.",
-      verified: true,
-      activeJobs: 18,
-      activeTenders: 5
-    },
-    {
-      id: 4,
-      name: "Ethiopian Electric Power",
-      industry: "Energy & Utilities",
-      location: "Addis Ababa, Ethiopia",
-      employees: "25,000+",
-      description: "State-owned electric utility company responsible for electricity generation, transmission, and distribution.",
-      verified: false,
-      activeJobs: 8,
-      activeTenders: 12
-    },
-    {
-      id: 5,
-      name: "Dashen Bank",
-      industry: "Banking & Finance",
-      location: "Addis Ababa, Ethiopia",
-      employees: "8,000+",
-      description: "One of Ethiopia's leading private banks offering innovative banking solutions and services.",
-      verified: true,
-      activeJobs: 15,
-      activeTenders: 2
-    }
-  ]);
+  const { toast } = useToast();
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [industryFilter, setIndustryFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
 
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [companyDetailsOpen, setCompanyDetailsOpen] = useState(false);
 
-  const handleViewCompanyDetails = (company) => {
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  const fetchCompanies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCompanies(data || []);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load companies",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter companies
+  const filteredCompanies = companies.filter(company => {
+    const matchesSearch = searchTerm === '' || 
+      company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesIndustry = industryFilter === 'all' || 
+      company.industry.toLowerCase().includes(industryFilter.toLowerCase());
+    
+    const matchesLocation = locationFilter === 'all' || 
+      company.location.toLowerCase().includes(locationFilter.toLowerCase());
+    
+    return matchesSearch && matchesIndustry && matchesLocation;
+  });
+
+  const handleViewCompanyDetails = (company: any) => {
     setSelectedCompany(company);
     setCompanyDetailsOpen(true);
   };
 
-  const handleAddCompany = (newCompany) => {
-    setCompanies(prev => [newCompany, ...prev]);
+  const handleAddCompany = async () => {
+    await fetchCompanies();
+  };
+
+  const getCompanyLogo = (companyName: string) => {
+    return logoMapping[companyName] || null;
   };
 
   return (
@@ -111,7 +137,12 @@ const Companies = () => {
 
             <div className="flex items-center space-x-4">
               {user && isAdmin && (
-                <PostCompanyDialog onSubmit={handleAddCompany} />
+                <>
+                  <PostCompanyDialog onSubmit={handleAddCompany} />
+                  <Link to="/admin">
+                    <Button variant="secondary" size="sm">Admin Dashboard</Button>
+                  </Link>
+                </>
               )}
               {!user ? (
                 <Link to="/auth">
@@ -144,10 +175,12 @@ const Companies = () => {
                   <Input 
                     placeholder="Search companies..." 
                     className="pl-10"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
               </div>
-              <Select>
+              <Select value={industryFilter} onValueChange={setIndustryFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Industry" />
                 </SelectTrigger>
@@ -155,21 +188,24 @@ const Companies = () => {
                   <SelectItem value="all">All Industries</SelectItem>
                   <SelectItem value="aviation">Aviation</SelectItem>
                   <SelectItem value="banking">Banking & Finance</SelectItem>
-                  <SelectItem value="telecom">Telecommunications</SelectItem>
+                  <SelectItem value="telecommunications">Telecommunications</SelectItem>
                   <SelectItem value="energy">Energy & Utilities</SelectItem>
-                  <SelectItem value="construction">Construction</SelectItem>
+                  <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                  <SelectItem value="agriculture">Agriculture</SelectItem>
+                  <SelectItem value="transportation">Transportation</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select value={locationFilter} onValueChange={setLocationFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Location" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="addis-ababa">Addis Ababa</SelectItem>
-                  <SelectItem value="dire-dawa">Dire Dawa</SelectItem>
+                  <SelectItem value="addis ababa">Addis Ababa</SelectItem>
+                  <SelectItem value="dire dawa">Dire Dawa</SelectItem>
                   <SelectItem value="mekelle">Mekelle</SelectItem>
-                  <SelectItem value="bahir-dar">Bahir Dar</SelectItem>
+                  <SelectItem value="bahir dar">Bahir Dar</SelectItem>
+                  <SelectItem value="debre birhan">Debre Birhan</SelectItem>
                 </SelectContent>
               </Select>
               <Button className="bg-green-600 hover:bg-green-700">
@@ -180,68 +216,88 @@ const Companies = () => {
         </Card>
 
         {/* Companies Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {companies.map((company) => (
-            <Card key={company.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{company.name}</CardTitle>
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {company.location}
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading companies...</p>
+          </div>
+        ) : filteredCompanies.length === 0 ? (
+          <div className="text-center py-12">
+            <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-500 mb-2">No companies found</h3>
+            <p className="text-gray-400">Try adjusting your search or filters</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCompanies.map((company) => {
+              const logo = getCompanyLogo(company.name);
+              return (
+                <Card key={company.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border">
+                          {logo ? (
+                            <img 
+                              src={logo} 
+                              alt={`${company.name} logo`}
+                              className="w-12 h-12 object-contain"
+                            />
+                          ) : (
+                            <Building2 className="w-6 h-6 text-green-600" />
+                          )}
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">{company.name}</CardTitle>
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <MapPin className="w-4 h-4 mr-1" />
+                            {company.location}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {company.verified && (
-                    <Badge className="bg-green-100 text-green-800">Verified</Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <Badge variant="secondary">{company.industry}</Badge>
-                  </div>
-                  
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    {company.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-1" />
-                      {company.employees}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div>
+                        <Badge variant="secondary">{company.industry}</Badge>
+                      </div>
+                      
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                        {company.description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <Users className="w-4 h-4 mr-1" />
+                          {company.size} employees
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          onClick={() => handleViewCompanyDetails(company)}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                        {company.website && (
+                          <Button 
+                            variant="outline"
+                            size="icon"
+                            onClick={() => window.open(company.website, '_blank')}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-blue-50 p-2 rounded text-center">
-                      <div className="font-semibold text-blue-600">{company.activeJobs}</div>
-                      <div className="text-blue-700">Active Jobs</div>
-                    </div>
-                    <div className="bg-green-50 p-2 rounded text-center">
-                      <div className="font-semibold text-green-600">{company.activeTenders}</div>
-                      <div className="text-green-700">Active Tenders</div>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => handleViewCompanyDetails(company)}
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Company Details Modal */}
@@ -253,8 +309,16 @@ const Companies = () => {
           {selectedCompany && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-8 h-8 text-green-600" />
+                <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden border">
+                  {getCompanyLogo(selectedCompany.name) ? (
+                    <img 
+                      src={getCompanyLogo(selectedCompany.name)} 
+                      alt={`${selectedCompany.name} logo`}
+                      className="w-16 h-16 object-contain"
+                    />
+                  ) : (
+                    <Building2 className="w-10 h-10 text-green-600" />
+                  )}
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900">
@@ -277,28 +341,23 @@ const Companies = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Employees</h4>
-                  <p className="text-gray-600">{selectedCompany.employees}</p>
+                  <h4 className="font-medium text-gray-900 mb-1">Company Size</h4>
+                  <p className="text-gray-600">{selectedCompany.size} employees</p>
                 </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Status</h4>
-                  {selectedCompany.verified ? (
-                    <Badge className="bg-green-100 text-green-800">Verified</Badge>
-                  ) : (
-                    <Badge className="bg-yellow-100 text-yellow-800">Unverified</Badge>
-                  )}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-blue-600">{selectedCompany.activeJobs}</div>
-                  <div className="text-blue-700">Active Jobs</div>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600">{selectedCompany.activeTenders}</div>
-                  <div className="text-green-700">Active Tenders</div>
-                </div>
+                {selectedCompany.website && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-1">Website</h4>
+                    <a 
+                      href={selectedCompany.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-green-600 hover:underline flex items-center"
+                    >
+                      Visit Website
+                      <ExternalLink className="w-4 h-4 ml-1" />
+                    </a>
+                  </div>
+                )}
               </div>
               
               <div className="flex gap-3 pt-4">
