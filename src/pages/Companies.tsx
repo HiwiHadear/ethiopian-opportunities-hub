@@ -14,36 +14,6 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-// Import company logos
-import ethioTelecomLogo from '@/assets/logos/ethio-telecom.png';
-import ethiopianAirlinesLogo from '@/assets/logos/ethiopian-airlines.png';
-import cbeLogo from '@/assets/logos/cbe.png';
-import dashenBankLogo from '@/assets/logos/dashen-bank.png';
-import awashBankLogo from '@/assets/logos/awash-bank.png';
-import safaricomLogo from '@/assets/logos/safaricom.png';
-import bgiEthiopiaLogo from '@/assets/logos/bgi-ethiopia.png';
-import habeshaBreweriesLogo from '@/assets/logos/habesha-breweries.png';
-import midrocLogo from '@/assets/logos/midroc.png';
-import eepLogo from '@/assets/logos/eep.png';
-import anbessaBusLogo from '@/assets/logos/anbessa-bus.png';
-import ethiopianSugarLogo from '@/assets/logos/ethiopian-sugar.png';
-
-// Logo mapping based on company name
-const logoMapping: Record<string, string> = {
-  'Ethio Telecom': ethioTelecomLogo,
-  'Ethiopian Airlines': ethiopianAirlinesLogo,
-  'Commercial Bank of Ethiopia': cbeLogo,
-  'Dashen Bank': dashenBankLogo,
-  'Awash Bank': awashBankLogo,
-  'Safaricom Ethiopia': safaricomLogo,
-  'BGI Ethiopia': bgiEthiopiaLogo,
-  'Habesha Breweries': habeshaBreweriesLogo,
-  'MIDROC Ethiopia': midrocLogo,
-  'Ethiopian Electric Power': eepLogo,
-  'Anbessa City Bus Service': anbessaBusLogo,
-  'Ethiopian Sugar Corporation': ethiopianSugarLogo,
-};
-
 const Companies = () => {
   const { user } = useAuth();
   const { isAdmin } = useProfile();
@@ -106,10 +76,6 @@ const Companies = () => {
 
   const handleAddCompany = async () => {
     await fetchCompanies();
-  };
-
-  const getCompanyLogo = (companyName: string) => {
-    return logoMapping[companyName] || null;
   };
 
   return (
@@ -228,17 +194,15 @@ const Companies = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCompanies.map((company) => {
-              const logo = getCompanyLogo(company.name);
-              return (
+            {filteredCompanies.map((company) => (
                 <Card key={company.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border">
-                          {logo ? (
+                          {company.logo_url ? (
                             <img 
-                              src={logo} 
+                              src={company.logo_url} 
                               alt={`${company.name} logo`}
                               className="w-12 h-12 object-contain"
                             />
@@ -294,8 +258,7 @@ const Companies = () => {
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })}
+            ))}
           </div>
         )}
       </div>
@@ -310,9 +273,9 @@ const Companies = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden border">
-                  {getCompanyLogo(selectedCompany.name) ? (
+                  {selectedCompany.logo_url ? (
                     <img 
-                      src={getCompanyLogo(selectedCompany.name)} 
+                      src={selectedCompany.logo_url} 
                       alt={`${selectedCompany.name} logo`}
                       className="w-16 h-16 object-contain"
                     />
