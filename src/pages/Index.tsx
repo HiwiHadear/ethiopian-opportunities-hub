@@ -286,7 +286,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p className="text-base">&copy; 2025 Geza Shekalo. All rights reserved.</p>
+            <p className="text-base">&copy; 2026 Geza Shekalo. All rights reserved.</p>
           </div>
         </div>
       </footer>
