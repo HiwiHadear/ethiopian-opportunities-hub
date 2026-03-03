@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import ContactDialog from "@/components/ContactDialog";
 import GoogleTranslate from "@/components/GoogleTranslate";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -42,7 +43,8 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
               <GoogleTranslate />
               {user ? (
                 <>
