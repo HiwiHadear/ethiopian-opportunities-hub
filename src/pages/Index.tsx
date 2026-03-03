@@ -13,9 +13,9 @@ const Index = () => {
   const { profile } = useProfile();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-accent">
       {/* Sliding Banner */}
-      <div className="bg-red-600 text-white py-3 overflow-hidden">
+      <div className="bg-destructive text-destructive-foreground py-3 overflow-hidden">
         <div className="animate-[slide_20s_linear_infinite] whitespace-nowrap">
           <span className="inline-block px-8 text-lg font-medium">
             Geza Shekalo Ethiopia's most trusted platform for tenders, jobs and scholarship opportunities ገዛ ሸቃሎ ለጨረታ፣ ለስራ እና ለስኮላርሺፕ እድሎች በጣም ታማኙ ፕላትፎርም •
@@ -27,7 +27,7 @@ const Index = () => {
       </div>
       
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-background shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -37,8 +37,8 @@ const Index = () => {
                 className="h-10 w-auto"
               />
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-gray-900">ገዛ ሸቃሎ</span>
-                <span className="text-sm font-semibold text-gray-700">Geza Shekalo</span>
+                <span className="text-lg font-bold text-foreground">ገዛ ሸቃሎ</span>
+                <span className="text-sm font-semibold text-muted-foreground">Geza Shekalo</span>
               </div>
             </div>
             
@@ -46,7 +46,7 @@ const Index = () => {
               <GoogleTranslate />
               {user ? (
                 <>
-                  <span className="text-base text-gray-600 font-medium">
+                  <span className="text-base text-muted-foreground font-medium">
                     Welcome, {profile?.full_name || user.email?.split('@')[0]}
                   </span>
                   <Button variant="outline" size="default" onClick={signOut}>
@@ -70,11 +70,11 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-8">
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-8">
             Ethiopia's Premier
-            <span className="text-red-600"> Tender & Job</span> Portal
+            <span className="text-destructive"> Tender & Job</span> Portal
           </h1>
-          <p className="text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
             Connecting businesses with government tenders and talented professionals with career opportunities across Ethiopia.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -91,7 +91,7 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/scholarships">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-secondary border-border text-secondary-foreground hover:bg-accent">
                 <GraduationCap className="w-5 h-5 mr-2" />
                 Scholarships
               </Button>
@@ -101,24 +101,24 @@ const Index = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-5xl font-bold text-red-600 mb-3">500+</div>
-              <div className="text-lg text-gray-600 font-medium">Active Tenders</div>
+              <div className="text-5xl font-bold text-destructive mb-3">500+</div>
+              <div className="text-lg text-muted-foreground font-medium">Active Tenders</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-blue-600 mb-3">1,200+</div>
-              <div className="text-lg text-gray-600 font-medium">Job Opportunities</div>
+              <div className="text-5xl font-bold text-primary mb-3">1,200+</div>
+              <div className="text-lg text-muted-foreground font-medium">Job Opportunities</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-600 mb-3">300+</div>
-              <div className="text-lg text-gray-600 font-medium">Registered Companies</div>
+              <div className="text-5xl font-bold text-primary mb-3">300+</div>
+              <div className="text-lg text-muted-foreground font-medium">Registered Companies</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-purple-600 mb-3">50,000+</div>
-              <div className="text-lg text-gray-600 font-medium">Active Users</div>
+              <div className="text-5xl font-bold text-primary mb-3">50,000+</div>
+              <div className="text-lg text-muted-foreground font-medium">Active Users</div>
             </div>
           </div>
         </div>
@@ -128,10 +128,10 @@ const Index = () => {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
               Why Choose Geza Shekalo?
             </h2>
-            <p className="text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               We provide the most comprehensive platform for tenders and jobs in Ethiopia
             </p>
           </div>
@@ -139,8 +139,8 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-6 h-6 text-destructive" />
                 </div>
                 <CardTitle className="text-xl font-bold">Government Tenders</CardTitle>
                 <CardDescription className="text-lg">
@@ -151,8 +151,8 @@ const Index = () => {
 
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Briefcase className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Briefcase className="w-6 h-6 text-primary" />
                 </div>
                 <CardTitle className="text-xl font-bold">Quality Jobs</CardTitle>
                 <CardDescription className="text-lg">
@@ -163,8 +163,8 @@ const Index = () => {
 
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-6 h-6 text-accent-foreground" />
                 </div>
                 <CardTitle className="text-xl font-bold">Real-time Updates</CardTitle>
                 <CardDescription className="text-lg">
@@ -177,12 +177,12 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-red-600">
+      <section className="py-20 bg-destructive">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-destructive-foreground mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-2xl text-red-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-2xl text-destructive-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed">
             Join thousands of businesses and professionals who trust Geza Shekalo
           </p>
           {!user && (
