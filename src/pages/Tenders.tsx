@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Calendar, FileText, Edit, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -14,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Tenders = () => {
   const { user } = useAuth();
@@ -127,7 +127,7 @@ const Tenders = () => {
 
     if (isEditing) {
       return (
-        <div className="border rounded-lg p-4 bg-blue-50">
+        <div className="border border-border rounded-lg p-4 bg-accent">
           <div className="space-y-3">
             <Input
               value={editData.title}
@@ -192,14 +192,13 @@ const Tenders = () => {
 
     return (
       <div className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
-        isExpired ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
+        isExpired ? 'border-destructive/50 bg-destructive/10' : 'border-border bg-card'
       }`}>
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg text-gray-900">{tender.title}</h3>
+          <h3 className="font-semibold text-lg text-foreground">{tender.title}</h3>
           <div className="flex items-center gap-2">
             <Badge 
               variant={isExpired ? "destructive" : "secondary"}
-              className={isExpired ? "bg-red-500 text-white" : ""}
             >
               {isExpired ? "EXPIRED" : tender.sector}
             </Badge>
@@ -210,26 +209,26 @@ const Tenders = () => {
             )}
           </div>
         </div>
-        <p className="text-gray-600 mb-3">{tender.organization}</p>
+        <p className="text-muted-foreground mb-3">{tender.organization}</p>
         <div className="flex flex-wrap gap-4 text-sm mb-3">
-          <span className="flex items-center text-gray-500">
+          <span className="flex items-center text-muted-foreground">
             <MapPin className="w-4 h-4 mr-1" />
             {tender.region}
           </span>
           <span className={`flex items-center font-medium ${
-            isExpired ? 'text-red-600' : 'text-green-600'
+            isExpired ? 'text-destructive' : 'text-primary'
           }`}>
             <Calendar className="w-4 h-4 mr-1" />
             Deadline: {tender.deadline}
-            {isExpired && <span className="ml-2 text-red-500 font-bold">EXPIRED</span>}
+            {isExpired && <span className="ml-2 text-destructive font-bold">EXPIRED</span>}
           </span>
-          <span className="font-semibold text-green-600">
+          <span className="font-semibold text-primary">
             Bid Guarantee: {tender.bid_guarantee || tender.budget}
           </span>
         </div>
         <Button 
           size="sm" 
-          className={isExpired ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
+          variant={isExpired ? "destructive" : "default"}
           onClick={() => handleViewTenderDetails(tender)}
           disabled={isExpired}
         >
@@ -240,9 +239,9 @@ const Tenders = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-accent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -251,18 +250,19 @@ const Tenders = () => {
                 alt="Geza Shekalo" 
                 className="h-8 w-auto"
               />
-              <span className="text-xl font-bold text-gray-900">Geza Shekalo</span>
+              <span className="text-xl font-bold text-foreground">Geza Shekalo</span>
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
-              <Link to="/tenders" className="text-blue-600 font-medium">Tenders</Link>
-              <Link to="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</Link>
-              <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
-              <Link to="/scholarships" className="text-gray-700 hover:text-blue-600 transition-colors">Scholarships</Link>
+              <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
+              <Link to="/tenders" className="text-primary font-medium">Tenders</Link>
+              <Link to="/jobs" className="text-muted-foreground hover:text-primary transition-colors">Jobs</Link>
+              <Link to="/companies" className="text-muted-foreground hover:text-primary transition-colors">Companies</Link>
+              <Link to="/scholarships" className="text-muted-foreground hover:text-primary transition-colors">Scholarships</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               {user && isAdmin && (
                 <>
                   <PostTenderDialog onSubmit={handleAddTender} />
@@ -288,8 +288,8 @@ const Tenders = () => {
       {/* Page Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Government Tenders</h1>
-          <p className="text-gray-600">Browse and apply for government and private sector tenders in Ethiopia</p>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Government Tenders</h1>
+          <p className="text-muted-foreground">Browse and apply for government and private sector tenders in Ethiopia</p>
         </div>
 
         {/* Search and Filters */}
@@ -298,7 +298,7 @@ const Tenders = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                   <Input 
                     placeholder="Search tenders..." 
                     className="pl-10"
@@ -330,7 +330,7 @@ const Tenders = () => {
                   <SelectItem value="mekelle">Mekelle</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button>
                 Search
               </Button>
             </div>
@@ -340,11 +340,11 @@ const Tenders = () => {
         {/* Tenders List */}
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading tenders...</p>
+            <p className="text-muted-foreground">Loading tenders...</p>
           </div>
         ) : tenders.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No tenders available yet.</p>
+            <p className="text-muted-foreground">No tenders available yet.</p>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -367,66 +367,66 @@ const Tenders = () => {
           {selectedTender && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {selectedTender.title}
                 </h3>
-                <p className="text-gray-600">{selectedTender.organization}</p>
+                <p className="text-muted-foreground">{selectedTender.organization}</p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Sector
                   </label>
-                  <p className="text-gray-900">{selectedTender.sector}</p>
+                  <p className="text-foreground">{selectedTender.sector}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Region
                   </label>
-                  <p className="text-gray-900">{selectedTender.region}</p>
+                  <p className="text-foreground">{selectedTender.region}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Bid Guarantee
                   </label>
-                  <p className="text-green-600 font-semibold">{selectedTender.bid_guarantee}</p>
+                  <p className="text-primary font-semibold">{selectedTender.bid_guarantee}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Deadline
                   </label>
                   <p className={`font-medium ${
-                    isTenderExpired(selectedTender.deadline) ? 'text-red-600' : 'text-green-600'
+                    isTenderExpired(selectedTender.deadline) ? 'text-destructive' : 'text-primary'
                   }`}>
                     {selectedTender.deadline}
                     {isTenderExpired(selectedTender.deadline) && 
-                      <span className="ml-2 text-red-500 font-bold">EXPIRED</span>
+                      <span className="ml-2 text-destructive font-bold">EXPIRED</span>
                     }
                   </p>
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Description
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                <p className="text-muted-foreground bg-muted p-3 rounded-lg whitespace-pre-wrap">
                   {selectedTender.description || 'No description provided'}
                 </p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Requirements
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                <p className="text-muted-foreground bg-muted p-3 rounded-lg whitespace-pre-wrap">
                   {selectedTender.requirements || 'No requirements specified'}
                 </p>
               </div>
               
               <div className="flex gap-3 pt-4">
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button>
                   Download Tender Document
                 </Button>
                 <Button variant="outline">

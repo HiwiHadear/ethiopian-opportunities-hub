@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -100,7 +101,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img 
@@ -108,8 +112,8 @@ const Auth = () => {
             alt="Geza Shekalo" 
             className="h-12 w-auto mx-auto mb-4"
           />
-          <h1 className="text-2xl font-bold text-gray-900">Geza Shekalo</h1>
-          <p className="text-gray-600">Sign in to your account or create a new one</p>
+          <h1 className="text-2xl font-bold text-foreground">Geza Shekalo</h1>
+          <p className="text-muted-foreground">Sign in to your account or create a new one</p>
         </div>
 
         <Card>
