@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PostNewsDialog from '@/components/PostNewsDialog';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const News = () => {
   const [news, setNews] = useState([
@@ -80,7 +81,7 @@ const News = () => {
 
     if (isEditing) {
       return (
-        <div className="border rounded-lg p-4 bg-blue-50">
+        <div className="border border-border rounded-lg p-4 bg-accent">
           <div className="space-y-3">
             <Input
               value={editData.title}
@@ -120,9 +121,9 @@ const News = () => {
     }
 
     return (
-      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg text-gray-900">{newsItem.title}</h3>
+          <h3 className="font-semibold text-lg text-foreground">{newsItem.title}</h3>
           <div className="flex items-center gap-2">
             <Badge variant="secondary">{newsItem.category}</Badge>
             <Button size="sm" variant="ghost" onClick={() => handleEditNews(newsItem.id)}>
@@ -130,16 +131,15 @@ const News = () => {
             </Button>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
           <span className="flex items-center">
             <Calendar className="w-4 h-4 mr-1" />
             {newsItem.date}
           </span>
         </div>
-        <p className="text-gray-600 mb-3">{newsItem.excerpt}</p>
+        <p className="text-muted-foreground mb-3">{newsItem.excerpt}</p>
         <Button 
           size="sm" 
-          className="bg-blue-600 hover:bg-blue-700"
           onClick={() => handleViewNewsDetails(newsItem)}
         >
           <Eye className="w-4 h-4 mr-1" />
@@ -150,9 +150,9 @@ const News = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-accent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -161,18 +161,19 @@ const News = () => {
                 alt="Geza Shekalo" 
                 className="h-8 w-auto"
               />
-              <span className="text-xl font-bold text-gray-900">Geza Shekalo</span>
+              <span className="text-xl font-bold text-foreground">Geza Shekalo</span>
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
-              <Link to="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</Link>
-              <Link to="/jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Jobs</Link>
-              <Link to="/news" className="text-blue-600 font-medium">News</Link>
-              <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
+              <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
+              <Link to="/tenders" className="text-muted-foreground hover:text-primary transition-colors">Tenders</Link>
+              <Link to="/jobs" className="text-muted-foreground hover:text-primary transition-colors">Jobs</Link>
+              <Link to="/news" className="text-primary font-medium">News</Link>
+              <Link to="/companies" className="text-muted-foreground hover:text-primary transition-colors">Companies</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <PostNewsDialog onSubmit={handleAddNews} />
               <Link to="/auth">
                 <Button>Sign In</Button>
@@ -185,8 +186,8 @@ const News = () => {
       {/* Page Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Latest News</h1>
-          <p className="text-gray-600">Stay updated with the latest news in government tenders, jobs, and industry updates</p>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Latest News</h1>
+          <p className="text-muted-foreground">Stay updated with the latest news in government tenders, jobs, and industry updates</p>
         </div>
 
         {/* Search and Filters */}
@@ -195,7 +196,7 @@ const News = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                   <Input 
                     placeholder="Search news..." 
                     className="pl-10"
@@ -215,7 +216,7 @@ const News = () => {
                   <SelectItem value="education">Education</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button>
                 Search
               </Button>
             </div>
@@ -239,10 +240,10 @@ const News = () => {
           {selectedNews && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {selectedNews.title}
                 </h3>
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                   <span className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />
                     {selectedNews.date}
@@ -252,16 +253,16 @@ const News = () => {
               </div>
               
               <div>
-                <p className="text-gray-600 bg-gray-50 p-4 rounded-lg leading-relaxed">
+                <p className="text-muted-foreground bg-muted p-4 rounded-lg leading-relaxed">
                   {selectedNews.excerpt}
                 </p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Full Article
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <p className="text-muted-foreground bg-muted p-3 rounded-lg">
                   This is the full content of the news article. In a real application, 
                   this would contain the complete article text with detailed information 
                   about the topic.
@@ -269,7 +270,7 @@ const News = () => {
               </div>
               
               <div className="flex gap-3 pt-4">
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button>
                   Share Article
                 </Button>
                 <Button variant="outline">

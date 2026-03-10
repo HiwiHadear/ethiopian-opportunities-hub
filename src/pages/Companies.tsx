@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Companies = () => {
   const { user } = useAuth();
@@ -53,7 +54,6 @@ const Companies = () => {
     }
   };
 
-  // Filter companies
   const filteredCompanies = companies.filter(company => {
     const matchesSearch = searchTerm === '' || 
       company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,9 +79,9 @@ const Companies = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-accent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -90,18 +90,19 @@ const Companies = () => {
                 alt="Geza Shekalo" 
                 className="h-8 w-auto"
               />
-              <span className="text-xl font-bold text-gray-900">Geza Shekalo</span>
+              <span className="text-xl font-bold text-foreground">Geza Shekalo</span>
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-green-600 transition-colors">Home</Link>
-              <Link to="/tenders" className="text-gray-700 hover:text-green-600 transition-colors">Tenders</Link>
-              <Link to="/jobs" className="text-gray-700 hover:text-green-600 transition-colors">Jobs</Link>
-              <Link to="/scholarships" className="text-gray-700 hover:text-green-600 transition-colors">Scholarships</Link>
-              <Link to="/companies" className="text-green-600 font-medium">Companies</Link>
+              <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
+              <Link to="/tenders" className="text-muted-foreground hover:text-primary transition-colors">Tenders</Link>
+              <Link to="/jobs" className="text-muted-foreground hover:text-primary transition-colors">Jobs</Link>
+              <Link to="/scholarships" className="text-muted-foreground hover:text-primary transition-colors">Scholarships</Link>
+              <Link to="/companies" className="text-primary font-medium">Companies</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               {user && isAdmin && (
                 <>
                   <PostCompanyDialog onSubmit={handleAddCompany} />
@@ -127,8 +128,8 @@ const Companies = () => {
       {/* Page Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Companies Directory</h1>
-          <p className="text-gray-600">Discover leading companies and organizations across Ethiopia</p>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Companies Directory</h1>
+          <p className="text-muted-foreground">Discover leading companies and organizations across Ethiopia</p>
         </div>
 
         {/* Search and Filters */}
@@ -137,7 +138,7 @@ const Companies = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                   <Input 
                     placeholder="Search companies..." 
                     className="pl-10"
@@ -174,7 +175,7 @@ const Companies = () => {
                   <SelectItem value="debre birhan">Debre Birhan</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button>
                 Search
               </Button>
             </div>
@@ -184,13 +185,13 @@ const Companies = () => {
         {/* Companies Grid */}
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading companies...</p>
+            <p className="text-muted-foreground">Loading companies...</p>
           </div>
         ) : filteredCompanies.length === 0 ? (
           <div className="text-center py-12">
-            <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-500 mb-2">No companies found</h3>
-            <p className="text-gray-400">Try adjusting your search or filters</p>
+            <Building2 className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-muted-foreground mb-2">No companies found</h3>
+            <p className="text-muted-foreground/70">Try adjusting your search or filters</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -199,7 +200,7 @@ const Companies = () => {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border">
+                        <div className="w-14 h-14 bg-card rounded-lg flex items-center justify-center overflow-hidden border border-border">
                           {company.logo_url ? (
                             <img 
                               src={company.logo_url} 
@@ -207,12 +208,12 @@ const Companies = () => {
                               className="w-12 h-12 object-contain"
                             />
                           ) : (
-                            <Building2 className="w-6 h-6 text-green-600" />
+                            <Building2 className="w-6 h-6 text-primary" />
                           )}
                         </div>
                         <div>
                           <CardTitle className="text-lg">{company.name}</CardTitle>
-                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                          <div className="flex items-center text-sm text-muted-foreground mt-1">
                             <MapPin className="w-4 h-4 mr-1" />
                             {company.location}
                           </div>
@@ -226,11 +227,11 @@ const Companies = () => {
                         <Badge variant="secondary">{company.industry}</Badge>
                       </div>
                       
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
                         {company.description}
                       </p>
                       
-                      <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center">
                           <Users className="w-4 h-4 mr-1" />
                           {company.size} employees
@@ -239,7 +240,7 @@ const Companies = () => {
                       
                       <div className="flex gap-2">
                         <Button 
-                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          className="flex-1"
                           onClick={() => handleViewCompanyDetails(company)}
                         >
                           <Eye className="w-4 h-4 mr-2" />
@@ -272,7 +273,7 @@ const Companies = () => {
           {selectedCompany && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden border">
+                <div className="w-20 h-20 bg-card rounded-lg flex items-center justify-center overflow-hidden border border-border">
                   {selectedCompany.logo_url ? (
                     <img 
                       src={selectedCompany.logo_url} 
@@ -280,15 +281,15 @@ const Companies = () => {
                       className="w-16 h-16 object-contain"
                     />
                   ) : (
-                    <Building2 className="w-10 h-10 text-green-600" />
+                    <Building2 className="w-10 h-10 text-primary" />
                   )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-foreground">
                     {selectedCompany.name}
                   </h3>
-                  <p className="text-gray-600">{selectedCompany.industry}</p>
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
+                  <p className="text-muted-foreground">{selectedCompany.industry}</p>
+                  <div className="flex items-center text-sm text-muted-foreground mt-1">
                     <MapPin className="w-4 h-4 mr-1" />
                     {selectedCompany.location}
                   </div>
@@ -296,25 +297,25 @@ const Companies = () => {
               </div>
               
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">About</h4>
-                <p className="text-gray-600 leading-relaxed">
+                <h4 className="font-medium text-foreground mb-2">About</h4>
+                <p className="text-muted-foreground leading-relaxed">
                   {selectedCompany.description}
                 </p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Company Size</h4>
-                  <p className="text-gray-600">{selectedCompany.size} employees</p>
+                  <h4 className="font-medium text-foreground mb-1">Company Size</h4>
+                  <p className="text-muted-foreground">{selectedCompany.size} employees</p>
                 </div>
                 {selectedCompany.website && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-1">Website</h4>
+                    <h4 className="font-medium text-foreground mb-1">Website</h4>
                     <a 
                       href={selectedCompany.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-green-600 hover:underline flex items-center"
+                      className="text-primary hover:underline flex items-center"
                     >
                       Visit Website
                       <ExternalLink className="w-4 h-4 ml-1" />
@@ -325,7 +326,7 @@ const Companies = () => {
               
               <div className="flex gap-3 pt-4">
                 <Link to="/jobs">
-                  <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Button>
                     View Jobs
                   </Button>
                 </Link>

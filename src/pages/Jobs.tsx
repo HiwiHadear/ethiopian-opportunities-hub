@@ -16,13 +16,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { generateCV, downloadCV } from '@/lib/aiCVGenerator';
 import { Calendar } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Jobs = () => {
   const { user } = useAuth();
   const { isAdmin } = useProfile();
   const { toast } = useToast();
 
-  // Helper function to format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -69,7 +69,6 @@ const Jobs = () => {
     }
   };
 
-  // Filter and sort jobs
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = searchTerm === '' || 
       job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,7 +88,6 @@ const Jobs = () => {
       case 'oldest':
         return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       case 'salary-high':
-        // Extract first number from salary string for comparison
         const extractSalary = (salary: string) => {
           if (!salary) return 0;
           const match = salary.match(/[\d,]+/);
@@ -161,7 +159,7 @@ const Jobs = () => {
   };
 
   const handleAddJob = async (newJob) => {
-    await fetchJobs(); // Refresh the jobs list from database
+    await fetchJobs();
   };
 
   const handleApplyToJob = (job) => {
@@ -246,16 +244,11 @@ const Jobs = () => {
 
       if (error) throw error;
 
-      if (autoCreateCV && generatedCV) {
-        // CV was already generated, include it in the application
-      }
-      
       toast({
         title: "Application Submitted!",
         description: `Your application for ${selectedJob?.title} at ${selectedJob?.company} has been submitted successfully.`,
       });
 
-      // Reset form
       setJobDetailsOpen(false);
       setSelectedJob(null);
       setAutoCreateCV(false);
@@ -285,7 +278,7 @@ const Jobs = () => {
 
     if (isEditing) {
       return (
-        <div className="border rounded-lg p-4 bg-indigo-50">
+        <div className="border border-border rounded-lg p-4 bg-accent">
           <div className="space-y-3">
             <Input
               value={editData.title}
@@ -351,9 +344,9 @@ const Jobs = () => {
     }
 
     return (
-      <div className="border rounded-lg p-4 hover:shadow-md transition-shadow border-green-200 bg-green-50">
+      <div className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
+          <h3 className="font-semibold text-lg text-foreground">{job.title}</h3>
           <div className="flex items-center gap-2">
             <Badge variant="outline">
               {job.job_type || 'full-time'}
@@ -365,25 +358,24 @@ const Jobs = () => {
             )}
           </div>
         </div>
-        <p className="text-gray-600 mb-3">{job.company}</p>
+        <p className="text-muted-foreground mb-3">{job.company}</p>
         <div className="flex flex-wrap gap-4 text-sm mb-3">
-          <span className="flex items-center text-gray-500">
+          <span className="flex items-center text-muted-foreground">
             <MapPin className="w-4 h-4 mr-1" />
             {job.location}
           </span>
           {job.salary && (
-            <span className="font-semibold text-green-600">
+            <span className="font-semibold text-primary">
               {job.salary}
             </span>
           )}
-          <span className="flex items-center text-gray-500">
+          <span className="flex items-center text-muted-foreground">
             <Calendar className="w-4 h-4 mr-1" />
             Posted {formatDate(job.created_at)}
           </span>
         </div>
         <Button 
           size="sm" 
-          className="bg-green-600 hover:bg-green-700"
           onClick={() => handleApplyToJob(job)}
         >
           Apply Now
@@ -393,9 +385,9 @@ const Jobs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-accent">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -404,18 +396,19 @@ const Jobs = () => {
                 alt="Geza Shekalo" 
                 className="h-8 w-auto"
               />
-              <span className="text-xl font-bold text-gray-900">Geza Shekalo</span>
+              <span className="text-xl font-bold text-foreground">Geza Shekalo</span>
             </div>
             
             <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
-              <Link to="/tenders" className="text-gray-700 hover:text-blue-600 transition-colors">Tenders</Link>
-              <Link to="/jobs" className="text-indigo-600 font-medium">Jobs</Link>
-              <Link to="/scholarships" className="text-gray-700 hover:text-blue-600 transition-colors">Scholarships</Link>
-              <Link to="/companies" className="text-gray-700 hover:text-blue-600 transition-colors">Companies</Link>
+              <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
+              <Link to="/tenders" className="text-muted-foreground hover:text-primary transition-colors">Tenders</Link>
+              <Link to="/jobs" className="text-primary font-medium">Jobs</Link>
+              <Link to="/scholarships" className="text-muted-foreground hover:text-primary transition-colors">Scholarships</Link>
+              <Link to="/companies" className="text-muted-foreground hover:text-primary transition-colors">Companies</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               {user && isAdmin && (
                 <>
                   <PostJobDialog onSubmit={handleAddJob} />
@@ -441,8 +434,8 @@ const Jobs = () => {
       {/* Page Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Job Opportunities</h1>
-          <p className="text-gray-600">Find your next career opportunity in Ethiopia</p>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Job Opportunities</h1>
+          <p className="text-muted-foreground">Find your next career opportunity in Ethiopia</p>
         </div>
 
         {/* Search and Filters */}
@@ -452,7 +445,7 @@ const Jobs = () => {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                     <Input 
                       placeholder="Search jobs by title, company, or location..." 
                       className="pl-10"
@@ -489,7 +482,7 @@ const Jobs = () => {
               </div>
               
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 whitespace-nowrap">Sort by:</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Sort by:</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-full md:w-64">
                     <SelectValue />
@@ -508,7 +501,7 @@ const Jobs = () => {
             
             {(searchTerm || jobTypeFilter !== 'all' || locationFilter !== 'all') && (
               <div className="mt-4 flex items-center gap-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-muted-foreground">
                   Showing {filteredJobs.length} of {jobs.length} jobs
                 </span>
                 <Button 
@@ -530,15 +523,15 @@ const Jobs = () => {
         {/* Jobs List */}
         {loading ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">Loading jobs...</p>
+            <p className="text-muted-foreground">Loading jobs...</p>
           </div>
         ) : jobs.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No jobs available yet.</p>
+            <p className="text-muted-foreground">No jobs available yet.</p>
           </div>
         ) : filteredJobs.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No jobs match your search criteria.</p>
+            <p className="text-muted-foreground">No jobs match your search criteria.</p>
             <Button 
               variant="outline" 
               className="mt-4"
@@ -569,59 +562,59 @@ const Jobs = () => {
           {selectedJob && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {selectedJob.title}
                 </h3>
-                <p className="text-gray-600">{selectedJob.company}</p>
+                <p className="text-muted-foreground">{selectedJob.company}</p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Location
                   </label>
-                  <p className="text-gray-900">{selectedJob.location}</p>
+                  <p className="text-foreground">{selectedJob.location}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Job Type
                   </label>
-                  <p className="text-gray-900">{selectedJob.job_type || 'full-time'}</p>
+                  <p className="text-foreground">{selectedJob.job_type || 'full-time'}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Salary Range
                   </label>
-                  <p className="text-green-600 font-semibold">{selectedJob.salary}</p>
+                  <p className="text-primary font-semibold">{selectedJob.salary}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Posted
                   </label>
-                  <p className="text-gray-600">{formatDate(selectedJob.created_at)}</p>
+                  <p className="text-muted-foreground">{formatDate(selectedJob.created_at)}</p>
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Job Description
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                <p className="text-muted-foreground bg-muted p-3 rounded-lg whitespace-pre-wrap">
                   {selectedJob.description || 'No description provided'}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Requirements
                 </label>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                <p className="text-muted-foreground bg-muted p-3 rounded-lg whitespace-pre-wrap">
                   {selectedJob.requirements || 'No requirements specified'}
                 </p>
               </div>
 
               {/* Auto CV Creation Option */}
-              <div className="border rounded-lg p-4 bg-blue-50">
+              <div className="border border-border rounded-lg p-4 bg-accent">
                 <div className="flex items-center space-x-2 mb-4">
                   <Checkbox 
                     id="auto-cv" 
@@ -637,7 +630,7 @@ const Jobs = () => {
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
                           Full Name *
                         </label>
                         <Input
@@ -647,7 +640,7 @@ const Jobs = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
                           Email *
                         </label>
                         <Input
@@ -660,7 +653,7 @@ const Jobs = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
                         Phone Number
                       </label>
                       <Input
@@ -671,7 +664,7 @@ const Jobs = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
                         Work Experience
                       </label>
                       <Textarea
@@ -683,7 +676,7 @@ const Jobs = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
                         Skills
                       </label>
                       <Input
@@ -694,7 +687,7 @@ const Jobs = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
                         Education
                       </label>
                       <Textarea
@@ -715,7 +708,7 @@ const Jobs = () => {
                        >
                          {isGeneratingCV ? (
                            <>
-                             <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                             <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                              Generating...
                            </>
                          ) : (
@@ -740,9 +733,9 @@ const Jobs = () => {
                      </div>
                      
                      {generatedCV && (
-                       <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                       <div className="mt-4 p-4 bg-muted rounded-lg border border-border">
                          <h4 className="font-semibold mb-2">Generated CV Preview:</h4>
-                         <div className="max-h-40 overflow-y-auto text-sm text-gray-700 whitespace-pre-wrap">
+                         <div className="max-h-40 overflow-y-auto text-sm text-muted-foreground whitespace-pre-wrap">
                            {generatedCV.substring(0, 500)}...
                          </div>
                        </div>
@@ -752,7 +745,7 @@ const Jobs = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Cover Letter (Optional)
                 </label>
                 <Textarea
@@ -765,7 +758,6 @@ const Jobs = () => {
               
               <div className="flex gap-3 pt-4">
                 <Button 
-                  className="bg-indigo-600 hover:bg-indigo-700"
                   onClick={handleJobApplication}
                 >
                   Submit Application
